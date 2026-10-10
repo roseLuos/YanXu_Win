@@ -1,0 +1,28 @@
+.build/
+dist/
+.swiftpm/
+DerivedData/
+node_modules/
+dist-windows/
+artifacts/
+coverage/
+.cache/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+*.xcuserstate
+
+# Local user data and backups
+backups/
+*.tmp
+*.bak
+
+# Personal one-off import tools
+scripts/import-courses-2026-autumn.swift
+
+# Editors
+.idea/
+.vscode/
+*.swp

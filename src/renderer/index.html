@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>研序</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar drag-region">
+    <div class="brand no-drag">
+      <img src="../../Resources/AppIcon-source.png" alt="研序">
+      <div><strong>研序 <em id="brand-mode">科研模式</em></strong><span id="full-date"></span></div>
+    </div>
+    <div class="top-actions no-drag">
+      <button class="header-button" id="settings-open" title="设置">
+        <svg class="header-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.09A1.7 1.7 0 0 0 8.95 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.58 15 1.7 1.7 0 0 0 3 14H3v-4h.09A1.7 1.7 0 0 0 4.6 8.95a1.7 1.7 0 0 0-.34-1.88L4.2 7l2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.58 1.7 1.7 0 0 0 10 3h4v.09a1.7 1.7 0 0 0 1.05 1.51 1.7 1.7 0 0 0 1.88-.34l.06-.06L19.82 7l-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 21 10h.09v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+        <b>设置</b>
+      </button>
+      <button class="header-button" id="deadline-manage"><span>◷</span><b>DDL · <i id="ddl-count">0</i></b></button>
+      <button class="header-button" id="records-open"><span>▥</span><b>详细记录</b></button>
+      <div class="window-controls">
+        <button data-window="minimize" aria-label="最小化">—</button>
+        <button data-window="maximize" aria-label="最大化">□</button>
+        <button data-window="close" class="close" aria-label="关闭">×</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="dashboard" id="dashboard"></section>
+
+  <main class="workspace">
+    <aside class="panel today-panel">
+      <div class="panel-title today-title">
+        <div><h2>今天</h2><span id="today-date"></span></div>
+        <div class="today-tools"><small id="today-progress"></small><button class="outline-button" id="new-task">＋ 新建</button></div>
+      </div>
+      <div class="quick-add"><span>＋</span><input id="quick-input" placeholder="试试：明天下午 2 点开会"><kbd>↵</kbd></div>
+      <div class="today-scroll" id="today-list"></div>
+    </aside>
+
+    <section class="panel calendar-panel">
+      <div class="calendar-toolbar">
+        <div class="calendar-nav">
+          <button id="calendar-prev" aria-label="上一页">‹</button>
+          <button id="calendar-next" aria-label="下一页">›</button>
+          <button id="calendar-today">今天</button>
+          <h2 id="calendar-title"></h2>
+        </div>
+        <div class="calendar-actions">
+          <div class="segmented"><button data-view="week" class="active">周</button><button data-view="month">月</button></div>
+          <button class="outline-button" id="inbox-drawer">▣ 待安排</button>
+          <button class="primary-button" id="calendar-new">＋ 新建</button>
+        </div>
+      </div>
+      <div id="calendar-body" class="calendar-body"></div>
+    </section>
+
+    <aside class="right-rail" id="right-rail"></aside>
+  </main>
+
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <aside class="inbox-drawer" id="inbox-panel">
+    <div class="drawer-title"><div><h2>待安排</h2><p>把任务拖到日历中的某一天</p></div><button data-close-drawer>×</button></div>
+    <div id="drawer-list" class="drawer-list"></div>
+  </aside>
+
+  <div class="modal-layer" id="modal-layer" aria-hidden="true">
+    <div class="modal-card" id="modal-card"></div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script src="../shared/workspace-modes.js"></script>
+  <script src="../shared/quick-parser.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

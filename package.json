@@ -1,0 +1,89 @@
+{
+  "name": "yanxu-windows",
+  "version": "1.0.0",
+  "description": "研序 YanXu - 本地优先的 Windows 计划与时间管理工作台",
+  "main": "src/main.js",
+  "author": {
+    "name": "roseLuos",
+    "email": "220830336+roseLuos@users.noreply.github.com",
+    "url": "https://github.com/roseLuos"
+  },
+  "contributors": [
+    {
+      "name": "roseLuos",
+      "email": "220830336+roseLuos@users.noreply.github.com",
+      "url": "https://github.com/roseLuos"
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roseLuos/YanXu_Win.git"
+  },
+  "homepage": "https://github.com/roseLuos/YanXu_Win#readme",
+  "bugs": {
+    "url": "https://github.com/roseLuos/YanXu_Win/issues"
+  },
+  "private": true,
+  "keywords": [
+    "productivity",
+    "task-manager",
+    "calendar",
+    "electron",
+    "windows"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "overrides": {
+    "@electron/get": "5.1.0"
+  },
+  "scripts": {
+    "start": "electron .",
+    "demo": "cross-env YANXU_DATA_PATH=artifacts/demo-data-v3.json electron .",
+    "lint": "node --check src/main.js && node --check src/preload.js && node --check src/renderer/app.js && node --check src/shared/quick-parser.js && node --check src/shared/workspace-modes.js",
+    "test": "node --test tests/*.test.js",
+    "check": "npm run lint && npm test",
+    "capture": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_CAPTURE=artifacts/yanxu-windows.png electron .",
+    "capture:settings": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_PREVIEW_PANEL=settings YANXU_CAPTURE=artifacts/yanxu-settings.png electron .",
+    "capture:records": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_PREVIEW_PANEL=records YANXU_CAPTURE=artifacts/yanxu-records.png electron .",
+    "capture:work": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_PREVIEW_MODE=work YANXU_CAPTURE=artifacts/yanxu-work.png electron .",
+    "capture:study": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_PREVIEW_MODE=study YANXU_CAPTURE=artifacts/yanxu-study.png electron .",
+    "dist": "electron-builder --win nsis portable",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.yanxu.windows",
+    "productName": "研序",
+    "copyright": "Copyright © 2026 roseLuos",
+    "directories": {
+      "output": "dist-windows"
+    },
+    "files": [
+      "src/**/*",
+      "Resources/AppIcon-source.png",
+      "LICENSE",
+      "NOTICE.md"
+    ],
+    "win": {
+      "icon": "Resources/AppIcon-source.png",
+      "artifactName": "YanXu-Windows-${version}-${arch}.${ext}",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "研序"
+    }
+  }
+}
