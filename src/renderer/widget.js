@@ -29,11 +29,11 @@ function weekday(value) { return ['周日', '周一', '周二', '周三', '周�
 function normalizedSettings() {
   data.settings = {
     theme: 'system', defaultCalendarView: 'week', workspaceMode: 'research',
-    desktopWidgetEnabled: true, desktopWidgetLocked: false, desktopWidgetAppearance: 'dark', desktopWidgetBounds: null,
+    desktopWidgetEnabled: true, desktopWidgetLocked: false, desktopWidgetAppearance: 'light', desktopWidgetBounds: null,
     ...(data.settings || {})
   };
   data.settings.workspaceMode = normalizeWorkspaceMode(data.settings.workspaceMode);
-  data.settings.desktopWidgetAppearance = data.settings.desktopWidgetAppearance === 'light' ? 'light' : 'dark';
+  data.settings.desktopWidgetAppearance = 'light';
   return data.settings;
 }
 
@@ -94,7 +94,7 @@ function taskTint(task) {
 
 function taskMarkup(task, day) {
   const completed = taskComplete(task, day);
-  return `<button class="widget-task ${completed ? 'completed' : ''}" data-task-id="${task.id}" data-task-date="${dateKey(day)}" style="--task-color:${taskTint(task)}">
+  return `<button class="widget-task ${completed ? 'completed' : ''}" data-task-id="${task.id}" data-task-date="${dateKey(day)}" data-context-task="${task.id}" style="--task-color:${taskTint(task)}">
     <i class="task-check">${completed ? '✓' : ''}</i>
     <span><strong>${escapeHTML(task.title)}</strong>${task.scheduleKind === 'fixed' ? `<small>${formatTime(task.start)}</small>` : ''}</span>
   </button>`;
@@ -111,27 +111,25 @@ function render() {
   const completed = todayTasks.filter((task) => taskComplete(task, now)).length;
 
   document.documentElement.dataset.mode = settings.workspaceMode;
-  document.documentElement.dataset.appearance = settings.desktopWidgetAppearance;
+  document.documentElement.dataset.appearance = 'light';
   document.documentElement.dataset.locked = String(settings.desktopWidgetLocked);
   $('#week-range').textContent = `${formatShortDate(weekStart)} — ${formatShortDate(days[6])}`;
   $('#today-duration-label').textContent = mode.today;
   $('#today-duration').textContent = durationText(todayDuration());
   $('#task-progress').textContent = `${completed}/${todayTasks.length}`;
   $('#quick-input').placeholder = `新增任务，如：${mode.quickPlaceholder.replace(/^试试：/, '')}`;
-  $('#appearance-toggle').textContent = settings.desktopWidgetAppearance === 'dark' ? '☀' : '☾';
-  $('#appearance-toggle').title = settings.desktopWidgetAppearance === 'dark' ? '切换到白天模式' : '切换到黑夜模式';
   $('#lock-toggle').classList.toggle('active', settings.desktopWidgetLocked);
   $('#lock-toggle').textContent = settings.desktopWidgetLocked ? '●' : '⌖';
   $('#lock-toggle').title = settings.desktopWidgetLocked ? '解除位置锁定' : '锁定卡片位置';
 
   $('#week-grid').innerHTML = days.map((day) => {
     const tasks = tasksOn(day);
-    const visibleTasks = tasks.slice(0, 8);
+    const visibleTasks = tasks.slice(0, 4);
     return `<article class="widget-day ${sameDay(day, now) ? 'today' : ''}">
       <button class="day-heading" data-open-main title="在研序中打开"><small>${weekday(day)}</small><b>${day.getDate()}</b></button>
       <div class="day-tasks">
         ${visibleTasks.length ? visibleTasks.map((task) => taskMarkup(task, day)).join('') : '<div class="empty-day">暂无计划</div>'}
-        ${tasks.length > 8 ? `<div class="more-tasks">还有 ${tasks.length - 8} 项</div>` : ''}
+        ${tasks.length > 4 ? `<div class="more-tasks">还有 ${tasks.length - 4} 项</div>` : ''}
       </div>
     </article>`;
   }).join('');
@@ -181,16 +179,58 @@ function addQuickTask(rawInput) {
   showToast(result.scheduleKind === 'inbox' ? '已加入待安排' : '任务已添加');
 }
 
+function closeContextMenu() {
+  const menu = $('#widget-context-menu');
+  menu.classList.remove('open');
+  menu.innerHTML = '';
+}
+
+function postponeTask(id) {
+  const task = data.tasks.find((item) => item.id === id);
+  if (!task || task.scheduleKind === 'inbox' || !task.start) return;
+  const postpone = (value) => {
+    const shifted = new Date(value);
+    shifted.setDate(shifted.getDate() + 1);
+    return shifted.toISOString();
+  };
+  task.start = postpone(task.start);
+  if (task.end) task.end = postpone(task.end);
+  render(); save(); showToast('任务已延后一天');
+}
+
+document.addEventListener('contextmenu', (event) => {
+  const element = event.target.closest('[data-context-task]');
+  if (!element) { closeContextMenu(); return; }
+  event.preventDefault();
+  const task = data.tasks.find((item) => item.id === element.dataset.contextTask);
+  if (!task) return;
+  const completed = taskComplete(task, element.dataset.taskDate);
+  const menu = $('#widget-context-menu');
+  menu.innerHTML = `${task.scheduleKind !== 'inbox' && !completed ? `<button data-widget-context="postpone" data-id="${task.id}">→　延后一天</button>` : ''}<button data-widget-context="open">↗　在主程序中打开</button><i></i><button class="danger" data-widget-context="delete" data-id="${task.id}">⌫　删除任务</button>`;
+  menu.classList.add('open');
+  menu.style.left = `${Math.min(event.clientX, window.innerWidth - 158)}px`;
+  menu.style.top = `${Math.min(event.clientY, window.innerHeight - menu.offsetHeight - 8)}px`;
+});
+
+document.addEventListener('click', (event) => {
+  const action = event.target.closest('[data-widget-context]');
+  if (action) {
+    if (action.dataset.widgetContext === 'postpone') postponeTask(action.dataset.id);
+    if (action.dataset.widgetContext === 'open') window.yanxu.widgetAction('open-main');
+    if (action.dataset.widgetContext === 'delete') {
+      data.tasks = data.tasks.filter((item) => item.id !== action.dataset.id);
+      render(); save(); showToast('任务已删除');
+    }
+  }
+  closeContextMenu();
+});
+
 $('#open-main').addEventListener('click', () => window.yanxu.widgetAction('open-main'));
 $('#widget-close').addEventListener('click', () => window.yanxu.widgetAction('close'));
 $('#quick-input').addEventListener('keydown', (event) => {
   if (event.key === 'Enter') addQuickTask(event.currentTarget.value);
 });
-$('#appearance-toggle').addEventListener('click', () => {
-  data.settings.desktopWidgetAppearance = normalizedSettings().desktopWidgetAppearance === 'dark' ? 'light' : 'dark';
-  render();
-  save();
-});
+$('#reset-position').addEventListener('click', () => window.yanxu.widgetAction('reset-position'));
 $('#lock-toggle').addEventListener('click', async () => {
   const result = await window.yanxu.setDesktopWidgetLocked(!normalizedSettings().desktopWidgetLocked);
   data.settings.desktopWidgetLocked = result.locked;

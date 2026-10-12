@@ -36,7 +36,7 @@
         <div><h2>今天</h2><span id="today-date"></span></div>
         <div class="today-tools"><small id="today-progress"></small><button class="outline-button" id="new-task">＋ 新建</button></div>
       </div>
-      <div class="quick-add"><span>＋</span><input id="quick-input" placeholder="试试：明天下午 2 点开会"><kbd>↵</kbd></div>
+      <div class="quick-add"><span>＋</span><input id="quick-input" placeholder="试试：明天下午 2 点开会"><em id="quick-preview"></em><kbd>↵</kbd></div>
       <div class="today-scroll" id="today-list"></div>
     </aside>
 
@@ -69,6 +69,7 @@
   <div class="modal-layer" id="modal-layer" aria-hidden="true">
     <div class="modal-card" id="modal-card"></div>
   </div>
+  <div class="task-context-menu" id="task-context-menu" role="menu" aria-hidden="true"></div>
   <div class="toast" id="toast"></div>
 
   <script src="../shared/workspace-modes.js"></script>

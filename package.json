@@ -1,6 +1,6 @@
 {
   "name": "yanxu-windows",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "研序 YanXu - 本地优先的 Windows 计划与时间管理工作台",
   "main": "src/main.js",
   "author": {
@@ -46,6 +46,8 @@
     "check": "npm run lint && npm test",
     "capture": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_CAPTURE=artifacts/yanxu-windows.png electron .",
     "capture:settings": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_PREVIEW_PANEL=settings YANXU_CAPTURE=artifacts/yanxu-settings.png electron .",
+    "capture:context": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_PREVIEW_PANEL=context YANXU_CAPTURE=artifacts/yanxu-context-menu.png electron .",
+    "capture:day": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_PREVIEW_PANEL=day YANXU_CAPTURE=artifacts/yanxu-day-detail.png electron .",
     "capture:records": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_PREVIEW_PANEL=records YANXU_CAPTURE=artifacts/yanxu-records.png electron .",
     "capture:work": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_PREVIEW_MODE=work YANXU_CAPTURE=artifacts/yanxu-work.png electron .",
     "capture:study": "cross-env YANXU_DATA_PATH=artifacts/capture-data-v3.json YANXU_PREVIEW_MODE=study YANXU_CAPTURE=artifacts/yanxu-study.png electron .",

@@ -26,18 +26,22 @@
 
 - 今天、逾期、待安排和已完成任务，已完成任务统一置底；
 - 周视图与月视图、拖放排期、日期范围、固定时间和重复任务；
-- 中文自然语言快速输入；
+- 中文自然语言快速输入，并实时预览识别出的日期和时间；
 - 科研、工作、学习三种模式，分别提供独立配色、图标、提示和看板文案；
-- 与 macOS 灵动岛展开态一致的桌面卡片，可快速新增任务、完成任务、切换外观并锁定位置；
+- 参考 macOS 灵动岛展开态的紧凑浅色桌面卡片，可快速新增、完成和延后任务并锁定位置；
 - 专注时段开始/结束打卡、记录编辑与历史管理；
-- 日/周/月数据看板、投入时长趋势、任务完成率和习惯统计；
-- 习惯目标、多次打卡、撤销与管理；
-- 个人 DDL 与正向里程碑；
+- 日/周/月数据看板、每日累计投入趋势、任务完成率和习惯统计；
+- 习惯目标、多次打卡、撤销、编辑与管理；
+- 个人 DDL 与正向里程碑，支持具体时间、忽略与恢复；
+- 任务右键延后、编辑、忽略逾期和删除，以及周历/月历单日详情；
+- 超长打卡检查、结束时间修正和完整记录编辑；
 - 浅色、深色与跟随系统主题；
 - 登录时启动、本地数据、JSON 备份导入导出与示例工作区；
 - 免安装便携版和 NSIS 安装包。
 
 Windows 版使用固定在桌面的计划卡片替代 macOS 顶部灵动岛，不包含 Apple 日历同步、日程提醒及 CCFDDL 数据。
+
+macOS 与 Windows 的功能对应关系及有意保留的差异见 [功能对照表](docs/FEATURE_PARITY.md)。
 
 ## 界面
 
@@ -120,7 +124,7 @@ Electron 使用 `contextIsolation` 与沙箱，渲染进程不启用 Node.js；�
 
 ## 参与贡献
 
-欢迎提交 Issue 和 Pull Request。开始前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)，实现细节见 [架构说明](docs/ARCHITECTURE.md)，构建发布见 [Windows 构建指南](docs/BUILDING.md)，安全问题请查看 [SECURITY.md](SECURITY.md)。
+欢迎提交 Issue 和 Pull Request。开始前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)，实现细节见 [架构说明](docs/ARCHITECTURE.md)，功能范围见 [功能对照表](docs/FEATURE_PARITY.md)，构建发布见 [Windows 构建指南](docs/BUILDING.md)，安全问题请查看 [SECURITY.md](SECURITY.md)。
 
 ## 上游与许可证
 

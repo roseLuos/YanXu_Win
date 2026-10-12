@@ -106,8 +106,16 @@ function taskComplete(task, occurrenceDate) {
 function taskDueDate(task) { return task.scheduleKind === 'range' ? (task.end || task.start) : task.start; }
 
 function occurrenceSort(left, right) {
-  const rank = (task) => task.scheduleKind === 'fixed' ? new Date(task.start).getHours() * 60 + new Date(task.start).getMinutes() : 0;
-  return rank(left) - rank(right) || new Date(left.createdAt) - new Date(right.createdAt);
+  const kindRank = { fixed: 0, day: 1, range: 2, inbox: 3 };
+  const leftKind = kindRank[left.scheduleKind] ?? 4;
+  const rightKind = kindRank[right.scheduleKind] ?? 4;
+  if (leftKind !== rightKind) return leftKind - rightKind;
+  if (left.scheduleKind === 'fixed' && right.scheduleKind === 'fixed') {
+    const leftTime = new Date(left.start).getHours() * 60 + new Date(left.start).getMinutes();
+    const rightTime = new Date(right.start).getHours() * 60 + new Date(right.start).getMinutes();
+    if (leftTime !== rightTime) return leftTime - rightTime;
+  }
+  return new Date(left.createdAt) - new Date(right.createdAt);
 }
 
 function tasksOn(value) {
@@ -183,7 +191,7 @@ function normalizedSettings() {
     workspaceMode: 'research',
     desktopWidgetEnabled: true,
     desktopWidgetLocked: false,
-    desktopWidgetAppearance: 'dark',
+    desktopWidgetAppearance: 'light',
     desktopWidgetBounds: null,
     ...(data.settings || {})
   };
@@ -229,7 +237,11 @@ function renderDashboard() {
   const ends = sessions.filter((item) => item.leftAt).map((item) => new Date(item.leftAt)).filter((value) => inInterval(value, start, end));
   const earliest = starts.sort((a, b) => (a.getHours() * 60 + a.getMinutes()) - (b.getHours() * 60 + b.getMinutes()))[0];
   const latest = ends.sort((a, b) => (b.getHours() * 60 + b.getMinutes()) - (a.getHours() * 60 + a.getMinutes()))[0];
-  const longest = sessions.map((item) => overlapDuration(item, start, end)).sort((a, b) => b - a)[0] || 0;
+  const dailyDurations = Array.from({ length: 7 }, (_, index) => {
+    const day = addDays(start, index);
+    return { day, duration: intervalAttendance(day, addDays(day, 1)) };
+  });
+  const longestDay = dailyDurations.sort((left, right) => right.duration - left.duration)[0];
   const planned = plannedInInterval(start, end);
   const completed = completedInInterval(start, end);
   const percent = planned ? Math.round(completed / planned * 100) : 0;
@@ -240,7 +252,7 @@ function renderDashboard() {
       <div class="metric-row">
         <div class="micro-metric"><span>最早开始</span><b>${earliest ? formatTime(earliest) : '—'}</b></div>
         <div class="micro-metric"><span>最晚结束</span><b>${latest ? formatTime(latest) : '—'}</b></div>
-        <div class="micro-metric"><span>最长单次</span><b>${longest ? compactDuration(longest) : '—'}</b></div>
+        <div class="micro-metric" title="${longestDay?.duration ? `${formatShortDate(longestDay.day)}累计投入` : '本周暂无记录'}"><span>单日最长</span><b>${longestDay?.duration ? compactDuration(longestDay.duration) : '—'}</b></div>
       </div>
     </article>
     <article class="dashboard-card orange">
@@ -267,7 +279,7 @@ function taskMeta(task, date) {
 
 function taskRow(task, occurrenceDate, extraClass = '') {
   const complete = taskComplete(task, occurrenceDate);
-  return `<div class="task-row ${extraClass} ${complete ? 'completed' : ''}" data-task-row="${task.id}">
+  return `<div class="task-row ${extraClass} ${complete ? 'completed' : ''}" data-task-row="${task.id}" data-context-task="${task.id}" data-context-date="${dateKey(occurrenceDate)}" data-context-overdue="${extraClass === 'overdue'}">
     <button class="task-check ${complete ? 'checked' : ''}" data-action="toggle-task" data-id="${task.id}" data-date="${dateKey(occurrenceDate)}">${complete ? '✓' : ''}</button>
     <div class="task-name">${escapeHTML(task.title)}</div>
     <div class="task-meta">${taskMeta(task, occurrenceDate)}</div>
@@ -299,7 +311,7 @@ function renderToday() {
 
 function calendarTask(task, date) {
   const complete = taskComplete(task, date);
-  return `<div class="calendar-task ${task.scheduleKind} ${complete ? 'completed' : ''}" draggable="true" data-drag-task="${task.id}" data-action="edit-task" data-id="${task.id}">
+  return `<div class="calendar-task ${task.scheduleKind} ${complete ? 'completed' : ''}" draggable="true" data-drag-task="${task.id}" data-context-task="${task.id}" data-context-date="${dateKey(date)}" data-action="edit-task" data-id="${task.id}">
     <button class="task-check ${complete ? 'checked' : ''}" data-action="toggle-task" data-id="${task.id}" data-date="${dateKey(date)}">${complete ? '✓' : ''}</button>
     <strong>${escapeHTML(task.title)}</strong>${task.scheduleKind === 'fixed' ? `<small>${formatTime(task.start)}</small>` : task.scheduleKind === 'range' ? '<small>日期范围</small>' : ''}
   </div>`;
@@ -311,7 +323,7 @@ function renderWeekCalendar() {
   $('#calendar-title').textContent = `${start.getFullYear()} 年 ${start.getMonth() + 1} 月 ${start.getDate()} 日 – ${days[6].getMonth() + 1} 月 ${days[6].getDate()} 日`;
   $('#calendar-body').innerHTML = `<div class="week-grid">${days.map((day) => `
     <section class="day-column ${sameDay(day, new Date()) ? 'today' : ''}">
-      <div class="day-head"><span>${weekday(day)}</span><b>${day.getDate()}</b></div>
+      <button class="day-head" data-action="open-day-detail" data-date="${dateKey(day)}" title="查看当天详情"><span>${weekday(day)}</span><b>${day.getDate()}</b></button>
       <div class="day-tasks" data-drop-date="${dateKey(day)}">
         ${tasksOn(day).map((task) => calendarTask(task, day)).join('')}
         <button class="day-add" data-action="new-on-date" data-date="${dateKey(day)}">＋ 添加</button>
@@ -329,9 +341,9 @@ function renderMonthCalendar() {
     ${['周一','周二','周三','周四','周五','周六','周日'].map((day) => `<div class="month-weekday">${day}</div>`).join('')}
     ${days.map((day) => {
       const entries = tasksOn(day);
-      return `<div class="month-day ${day.getMonth() !== first.getMonth() ? 'other' : ''} ${sameDay(day, new Date()) ? 'today' : ''}" data-drop-date="${dateKey(day)}" data-action="new-on-date" data-date="${dateKey(day)}">
+      return `<div class="month-day ${day.getMonth() !== first.getMonth() ? 'other' : ''} ${sameDay(day, new Date()) ? 'today' : ''}" data-drop-date="${dateKey(day)}" data-action="open-day-detail" data-date="${dateKey(day)}">
         <div class="month-number">${day.getDate()}</div>
-        ${entries.slice(0, 3).map((task) => `<div class="month-task" draggable="true" data-drag-task="${task.id}" data-action="edit-task" data-id="${task.id}">${escapeHTML(task.title)}</div>`).join('')}
+        ${entries.slice(0, 3).map((task) => `<div class="month-task" draggable="true" data-drag-task="${task.id}" data-context-task="${task.id}" data-context-date="${dateKey(day)}" data-action="edit-task" data-id="${task.id}">${escapeHTML(task.title)}</div>`).join('')}
         ${entries.length > 3 ? `<div class="month-task">还有 ${entries.length - 3} 项</div>` : ''}
       </div>`;
     }).join('')}
@@ -378,13 +390,15 @@ function renderRightRail() {
   const todayStart = startOfDay(new Date());
   const todayDuration = intervalAttendance(todayStart, endOfDay(todayStart));
   const active = data.attendanceSessions.find((item) => !item.leftAt);
+  const activeDuration = active ? new Date() - new Date(active.arrivedAt) : 0;
+  const activeTooLong = activeDuration > 8 * 60 * 60 * 1000;
   const personal = activeDeadlines().filter((item) => item.kind === 'deadline').slice(0, 6);
   $('#right-rail').innerHTML = `
     <section class="rail-card">
       <div class="rail-title"><span>${iconSVG(mode.icon)}</span>${mode.attendance}</div>
-      <div class="attendance-block">
+      <div class="attendance-block ${activeTooLong ? 'warning' : ''}">
         <div class="attendance-icon">${iconSVG(active ? 'location' : mode.icon)}</div>
-        <div class="attendance-text"><b>${mode.today} ${durationText(todayDuration)}</b><small>${active ? `本段从 ${formatTime(active.arrivedAt)} 开始` : mode.idleHint}</small></div>
+        <div class="attendance-text"><b>${mode.today} ${durationText(todayDuration)}</b><small>${active ? (activeTooLong ? '连续超过 8 小时 · 请检查记录' : `本段从 ${formatTime(active.arrivedAt)} 开始`) : mode.idleHint}</small></div>
         <button class="clock-button" data-action="clock">${active ? '结束' : '开始'}</button>
       </div>
     </section>
@@ -406,7 +420,7 @@ function renderRightRail() {
 
 function renderDrawer() {
   const tasks = data.tasks.filter((task) => task.scheduleKind === 'inbox' && !task.completedAt);
-  $('#drawer-list').innerHTML = tasks.length ? tasks.map((task) => `<div class="drawer-task" draggable="true" data-drag-task="${task.id}" data-action="edit-task" data-id="${task.id}">${escapeHTML(task.title)}</div>`).join('') : '<div class="empty-block">没有待安排任务</div>';
+  $('#drawer-list').innerHTML = tasks.length ? tasks.map((task) => `<div class="drawer-task" draggable="true" data-drag-task="${task.id}" data-context-task="${task.id}" data-action="edit-task" data-id="${task.id}">${escapeHTML(task.title)}</div>`).join('') : '<div class="empty-block">没有待安排任务</div>';
   bindCalendarDrag();
 }
 
@@ -433,6 +447,60 @@ function toggleTask(id, dateValue) {
     if (index >= 0) task.completedOccurrenceKeys.splice(index, 1); else task.completedOccurrenceKeys.push(key);
   } else task.completedAt = task.completedAt ? null : nowISO();
   saveAndRender();
+}
+
+function postponeTask(id) {
+  const task = data.tasks.find((item) => item.id === id);
+  if (!task || task.scheduleKind === 'inbox' || !task.start) return;
+  const postpone = (value) => {
+    const shifted = new Date(value);
+    shifted.setDate(shifted.getDate() + 1);
+    return shifted.toISOString();
+  };
+  task.start = postpone(task.start);
+  if (task.end) task.end = postpone(task.end);
+  saveAndRender();
+  showToast('任务已延后一天');
+}
+
+function ignoreOverdueOccurrence(id, occurrenceDate) {
+  const key = `${id}-${dateKey(occurrenceDate)}`;
+  data.ignoredOverdueOccurrenceKeys ||= [];
+  if (!data.ignoredOverdueOccurrenceKeys.includes(key)) data.ignoredOverdueOccurrenceKeys.push(key);
+  saveAndRender();
+  showToast('已从逾期列表忽略');
+}
+
+function closeTaskContextMenu() {
+  const menu = $('#task-context-menu');
+  menu.classList.remove('open');
+  menu.setAttribute('aria-hidden', 'true');
+  menu.innerHTML = '';
+}
+
+function openTaskContextMenu(event, element) {
+  const task = data.tasks.find((item) => item.id === element.dataset.contextTask);
+  if (!task) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const occurrenceDate = element.dataset.contextDate || '';
+  const completed = occurrenceDate ? taskComplete(task, occurrenceDate) : Boolean(task.completedAt);
+  const canPostpone = task.scheduleKind !== 'inbox' && !completed;
+  const canIgnore = element.dataset.contextOverdue === 'true' && occurrenceDate;
+  const menu = $('#task-context-menu');
+  menu.innerHTML = `
+    ${canPostpone ? `<button data-context-action="postpone" data-id="${task.id}"><span>→</span>延后一天</button>` : ''}
+    <button data-context-action="edit" data-id="${task.id}"><span>✎</span>编辑任务</button>
+    ${canIgnore ? `<button data-context-action="ignore" data-id="${task.id}" data-date="${occurrenceDate}"><span>◌</span>忽略此条逾期</button>` : ''}
+    <i></i>
+    <button class="danger" data-context-action="delete" data-id="${task.id}"><span>⌫</span>删除任务</button>`;
+  menu.classList.add('open');
+  menu.setAttribute('aria-hidden', 'false');
+  const margin = 8;
+  const width = 170;
+  const estimatedHeight = menu.offsetHeight || 150;
+  menu.style.left = `${Math.min(event.clientX, window.innerWidth - width - margin)}px`;
+  menu.style.top = `${Math.min(event.clientY, window.innerHeight - estimatedHeight - margin)}px`;
 }
 
 function moveTask(id, targetDate) {
@@ -471,6 +539,51 @@ function closeModal() {
   $('#modal-layer').setAttribute('aria-hidden', 'true');
   $('#modal-card').className = 'modal-card';
   $('#modal-card').innerHTML = '';
+}
+
+function dayDetailTask(task, day) {
+  const complete = taskComplete(task, day);
+  const metadata = task.scheduleKind === 'fixed'
+    ? formatTime(task.start)
+    : task.scheduleKind === 'range'
+      ? `${formatShortDate(task.start)} – ${formatShortDate(task.end || task.start)}`
+      : task.repeatRule && task.repeatRule !== 'none'
+        ? ({ daily: '每天', weekly: '每周', monthly: '每月' }[task.repeatRule] || '')
+        : '';
+  return `<div class="day-detail-task ${complete ? 'completed' : ''}" data-context-task="${task.id}" data-context-date="${dateKey(day)}">
+    <button class="day-detail-check ${complete ? 'checked' : ''}" data-action="toggle-task" data-id="${task.id}" data-date="${dateKey(day)}">${complete ? '✓' : ''}</button>
+    <button class="day-detail-copy" data-action="edit-task" data-id="${task.id}"><b>${escapeHTML(task.title)}</b>${task.notes ? `<small>${escapeHTML(task.notes)}</small>` : ''}</button>
+    ${metadata ? `<span>${escapeHTML(metadata)}</span>` : ''}
+    <button class="day-detail-more" data-action="edit-task" data-id="${task.id}" title="编辑任务">•••</button>
+  </div>`;
+}
+
+function dayDetailSection(title, detail, tasks, day) {
+  if (!tasks.length) return '';
+  return `<section class="day-detail-section"><div class="day-detail-section-head"><b>${title}</b><em>${tasks.length}</em>${detail ? `<span>${detail}</span>` : ''}</div>${tasks.map((task) => dayDetailTask(task, day)).join('')}</section>`;
+}
+
+function openDayDetail(dateValue) {
+  const day = startOfDay(dateValue);
+  const tasks = tasksOn(day);
+  const incomplete = tasks.filter((task) => !taskComplete(task, day));
+  const fixed = incomplete.filter((task) => task.scheduleKind === 'fixed');
+  const dated = incomplete.filter((task) => task.scheduleKind === 'day');
+  const ranged = incomplete.filter((task) => task.scheduleKind === 'range');
+  const completed = tasks.filter((task) => taskComplete(task, day));
+  const deadlines = data.deadlines
+    .filter((item) => !item.isIgnored && sameDay(item.dueDate, day))
+    .sort((left, right) => new Date(left.dueDate) - new Date(right.dueDate));
+  const relativeTitle = sameDay(day, new Date()) ? '今天' : sameDay(day, addDays(new Date(), 1)) ? '明天' : formatFullDate(day);
+  const content = [
+    dayDetailSection('具体时间', '时间只作提示', fixed, day),
+    dayDetailSection('当天任务', '', dated, day),
+    dayDetailSection('可在当天完成', '日期范围任务', ranged, day),
+    deadlines.length ? `<section class="day-detail-section"><div class="day-detail-section-head"><b>里程碑与 DDL</b><em>${deadlines.length}</em></div>${deadlines.map((item) => `<button class="day-detail-deadline" data-action="edit-deadline" data-id="${item.id}"><i>${item.kind === 'milestone' ? '◆' : '◷'}</i><b>${escapeHTML(item.title)}</b><span>${item.includesTime ? formatTime(item.dueDate) : item.kind === 'milestone' ? '起始' : '截止'}</span></button>`).join('')}</section>` : '',
+    dayDetailSection('已完成', '', completed, day)
+  ].join('');
+  modal(`<div class="day-detail"><div class="modal-header day-detail-header"><div><h2>${relativeTitle}</h2><small>${incomplete.length ? `${incomplete.length} 项待完成` : '没有未完成任务'}</small></div><div><button class="outline-button" data-action="new-on-date" data-date="${dateKey(day)}">＋ 添加任务</button><button class="modal-close" data-action="close-modal">×</button></div></div><div class="modal-body day-detail-body">${content || `<div class="day-detail-empty"><b>这一天还没有任务</b><span>可以安排一件要推进的事</span><button class="primary-button" data-action="new-on-date" data-date="${dateKey(day)}">添加任务</button></div>`}</div></div>`);
+  $('#modal-card').classList.add('day-detail-card');
 }
 
 async function openSettings() {
@@ -637,31 +750,52 @@ function openDeadlineManager(editId = null) {
       <form id="deadline-form"><div class="form-grid">
         <div class="field full"><label>名称</label><input name="title" required value="${escapeHTML(editing?.title || '')}" placeholder="例如：论文投稿截止"></div>
         <div class="field"><label>类型</label><select name="kind"><option value="deadline" ${editing?.kind !== 'milestone' ? 'selected' : ''}>DDL</option><option value="milestone" ${editing?.kind === 'milestone' ? 'selected' : ''}>正向里程碑</option></select></div>
-        <div class="field"><label>日期</label><input name="dueDate" type="date" required value="${dateInputValue(editing?.dueDate || addDays(new Date(), 7))}"></div>
+        <div class="field"><label>日期与时间</label><input name="dueDate" type="${editing?.includesTime ? 'datetime-local' : 'date'}" required value="${editing?.includesTime ? dateTimeInputValue(editing.dueDate) : dateInputValue(editing?.dueDate || addDays(new Date(), 7))}"></div>
+        <label class="field full checkbox-field deadline-time-field"><input name="includesTime" type="checkbox" ${editing?.includesTime ? 'checked' : ''}><span><b>包含具体时间</b><small>关闭时只按日期计算；正向里程碑不包含时间</small></span></label>
       </div><div class="modal-footer" style="padding:14px 0 0">${editing ? `<button type="button" class="danger-button" data-action="delete-deadline" data-id="${editing.id}">删除</button>` : ''}<button class="primary-button" type="submit">${editing ? '保存修改' : '添加'}</button></div></form>
-      <div class="manage-list">${activeDeadlines().map((item) => `<div class="manage-row"><div class="copy"><b>${escapeHTML(item.title)}</b><small>${item.kind === 'milestone' ? '已坚持' : '还剩'} ${Math.abs(daysFromToday(item.dueDate))} 天 · ${formatShortDate(item.dueDate)}</small></div><button data-action="edit-deadline" data-id="${item.id}">编辑</button></div>`).join('') || '<div class="empty-block">还没有里程碑</div>'}</div>
+      <div class="manage-list">${activeDeadlines().map((item) => `<div class="manage-row"><div class="copy"><b>${escapeHTML(item.title)}</b><small>${item.kind === 'milestone' ? '已坚持' : (daysFromToday(item.dueDate) < 0 ? '已经过去' : '还剩')} ${Math.abs(daysFromToday(item.dueDate))} 天 · ${formatShortDate(item.dueDate)}${item.includesTime ? ` ${formatTime(item.dueDate)}` : ''}</small></div><button data-action="edit-deadline" data-id="${item.id}">编辑</button><button data-action="ignore-deadline" data-id="${item.id}">忽略</button></div>`).join('') || '<div class="empty-block">还没有里程碑</div>'}
+        ${data.deadlines.some((item) => item.isIgnored) ? `<div class="manage-subtitle">已忽略</div>${data.deadlines.filter((item) => item.isIgnored).map((item) => `<div class="manage-row muted"><div class="copy"><b>${escapeHTML(item.title)}</b><small>${formatShortDate(item.dueDate)}</small></div><button data-action="restore-deadline" data-id="${item.id}">恢复</button></div>`).join('')}` : ''}
+      </div>
     </div>`);
-  $('#deadline-form').addEventListener('submit', (event) => {
+  const form = $('#deadline-form');
+  const kindInput = form.elements.kind;
+  const timeToggle = form.elements.includesTime;
+  const dueInput = form.elements.dueDate;
+  const updateDeadlineFields = () => {
+    const isMilestone = kindInput.value === 'milestone';
+    if (isMilestone) timeToggle.checked = false;
+    timeToggle.disabled = isMilestone;
+    const current = dueInput.value ? fromLocalInput(dueInput.value) : addDays(new Date(), 7).toISOString();
+    dueInput.type = timeToggle.checked && !isMilestone ? 'datetime-local' : 'date';
+    dueInput.value = dueInput.type === 'datetime-local' ? dateTimeInputValue(current) : dateInputValue(current);
+  };
+  kindInput.addEventListener('change', updateDeadlineFields);
+  timeToggle.addEventListener('change', updateDeadlineFields);
+  form.addEventListener('submit', (event) => {
     event.preventDefault(); const form = event.currentTarget; const fd = new FormData(form);
     const title = fd.get('title').trim();
     if (!title) { showToast('请输入名称'); form.elements.title.focus(); return; }
     const item = editing || { id: uid(), includesTime: false, isIgnored: false, createdAt: nowISO() };
-    item.title = title; item.kind = fd.get('kind'); item.dueDate = fromLocalInput(fd.get('dueDate'));
+    item.title = title; item.kind = fd.get('kind'); item.includesTime = item.kind === 'deadline' && fd.get('includesTime') === 'on'; item.dueDate = fromLocalInput(fd.get('dueDate'));
     if (!editing) data.deadlines.push(item);
     saveAndRender(); openDeadlineManager(); showToast(editing ? '已更新' : '已添加');
   });
 }
 
-function openHabitManager() {
-  modal(`<div class="modal-header"><h2>习惯管理</h2><button class="modal-close" data-action="close-modal">×</button></div>
-    <div class="modal-body"><form id="habit-form"><div class="form-grid"><div class="field"><label>习惯名称</label><input name="name" required placeholder="例如：英文写作"></div><div class="field"><label>每周目标次数</label><input name="target" type="number" min="1" max="99" value="3" required></div></div><div class="modal-footer" style="padding:14px 0 0"><button class="primary-button">添加习惯</button></div></form>
-      <div class="manage-list">${data.habits.map((habit) => `<div class="manage-row"><div class="copy"><b>${escapeHTML(habit.name)}</b><small>每周 ${habit.weeklyTarget} 次 · 本周完成 ${weekHabitCount(habit.id)} 次</small></div><button data-action="delete-habit" data-id="${habit.id}">删除</button></div>`).join('') || '<div class="empty-block">还没有习惯</div>'}</div></div>`);
+function openHabitManager(editId = null) {
+  const editing = editId ? data.habits.find((item) => item.id === editId) : null;
+  modal(`<div class="modal-header"><h2>${editing ? '编辑习惯' : '习惯管理'}</h2><button class="modal-close" data-action="close-modal">×</button></div>
+    <div class="modal-body"><form id="habit-form"><div class="form-grid"><div class="field"><label>习惯名称</label><input name="name" required value="${escapeHTML(editing?.name || '')}" placeholder="例如：英文写作"></div><div class="field"><label>每周目标次数</label><input name="target" type="number" min="1" max="99" value="${editing?.weeklyTarget || 3}" required></div></div><div class="modal-footer" style="padding:14px 0 0">${editing ? '<button type="button" class="outline-button" data-action="manage-habits">取消编辑</button>' : ''}<button class="primary-button">${editing ? '保存修改' : '添加习惯'}</button></div></form>
+      <div class="manage-list">${data.habits.map((habit) => `<div class="manage-row"><div class="copy"><b>${escapeHTML(habit.name)}</b><small>每周 ${habit.weeklyTarget} 次 · 本周完成 ${weekHabitCount(habit.id)} 次</small></div><button data-action="edit-habit" data-id="${habit.id}">编辑</button><button data-action="delete-habit" data-id="${habit.id}">删除</button></div>`).join('') || '<div class="empty-block">还没有习惯</div>'}</div></div>`);
   $('#habit-form').addEventListener('submit', (event) => {
     event.preventDefault(); const fd = new FormData(event.currentTarget);
     const name = fd.get('name').trim();
     if (!name) { showToast('请输入习惯名称'); event.currentTarget.elements.name.focus(); return; }
-    data.habits.push({ id: uid(), name, weeklyTarget: Math.max(1, Number(fd.get('target'))), createdAt: nowISO() });
-    saveAndRender(); openHabitManager(); showToast('习惯已添加');
+    if (editing) {
+      editing.name = name;
+      editing.weeklyTarget = Math.max(1, Number(fd.get('target')));
+    } else data.habits.push({ id: uid(), name, weeklyTarget: Math.max(1, Number(fd.get('target'))), createdAt: nowISO() });
+    saveAndRender(); openHabitManager(); showToast(editing ? '习惯已更新' : '习惯已添加');
   });
 }
 
@@ -795,7 +929,7 @@ function habitsRecordsContent() {
     <div class="record-habit-grid">${data.habits.map((habit) => {
       const logs = data.habitLogs.filter((item) => item.habitID === habit.id && inInterval(item.timestamp, weekStart, weekStop)).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       const progress = Math.min(100, logs.length / Math.max(1, habit.weeklyTarget) * 100);
-      return `<article class="record-habit-card"><div class="record-habit-card-head"><div><span>本周习惯</span><h3>${escapeHTML(habit.name)}</h3></div><button class="record-delete" data-action="records-delete-habit" data-id="${habit.id}">删除</button></div><div class="record-habit-count"><strong>${logs.length}</strong><span>/ ${habit.weeklyTarget} 次</span></div><div class="record-progress"><i style="width:${progress}%"></i></div><p>${logs.length >= habit.weeklyTarget ? '本周目标已完成，做得不错。' : `还差 ${habit.weeklyTarget - logs.length} 次完成本周目标。`}</p><div class="record-habit-actions"><button data-action="records-undo-habit" data-id="${habit.id}">↶ 撤销</button><button data-action="records-check-habit" data-id="${habit.id}">✓ 打卡 +1</button></div></article>`;
+      return `<article class="record-habit-card"><div class="record-habit-card-head"><div><span>本周习惯</span><h3>${escapeHTML(habit.name)}</h3></div><div class="record-card-actions"><button data-action="edit-habit" data-id="${habit.id}">编辑</button><button class="record-delete" data-action="records-delete-habit" data-id="${habit.id}">删除</button></div></div><div class="record-habit-count"><strong>${logs.length}</strong><span>/ ${habit.weeklyTarget} 次</span></div><div class="record-progress"><i style="width:${progress}%"></i></div><p>${logs.length >= habit.weeklyTarget ? '本周目标已完成，做得不错。' : `还差 ${habit.weeklyTarget - logs.length} 次完成本周目标。`}</p><div class="record-habit-actions"><button data-action="records-undo-habit" data-id="${habit.id}">↶ 撤销</button><button data-action="records-check-habit" data-id="${habit.id}">✓ 打卡 +1</button></div></article>`;
     }).join('') || '<div class="records-empty wide">还没有习惯，添加一个每周目标开始记录。</div>'}</div>
   </div>`;
 }
@@ -804,11 +938,13 @@ function attendanceRecordsContent() {
   const mode = currentMode();
   const sessions = [...data.attendanceSessions].sort((a, b) => new Date(b.arrivedAt) - new Date(a.arrivedAt));
   const active = sessions.find((item) => !item.leftAt);
+  const activeDuration = active ? new Date() - new Date(active.arrivedAt) : 0;
+  const activeTooLong = activeDuration > 8 * 60 * 60 * 1000;
   const today = startOfDay(new Date());
   const todayDuration = intervalAttendance(today, addDays(today, 1));
   return `<div class="records-dashboard">
     <div class="records-section-intro"><div><h2>${mode.attendance}记录</h2><p>查看和维护每一段${mode.session}的开始、结束时间。</p></div></div>
-    <section class="attendance-current"><div class="attendance-current-icon">${iconSVG(active ? 'location' : mode.icon)}</div><div><span>${active ? mode.active : mode.today}</span><strong>${active ? `从 ${formatTime(active.arrivedAt)} 开始` : durationText(todayDuration)}</strong><small>${active ? `本段已进行 ${durationText(new Date() - new Date(active.arrivedAt))}` : mode.idleHint}</small></div><button class="clock-button" data-action="records-clock">${active ? '记录结束' : '记录开始'}</button></section>
+    <section class="attendance-current ${activeTooLong ? 'warning' : ''}"><div class="attendance-current-icon">${iconSVG(active ? 'location' : mode.icon)}</div><div><span>${active ? mode.active : mode.today}</span><strong>${active ? `从 ${formatTime(active.arrivedAt)} 开始` : durationText(todayDuration)}</strong><small>${active ? (activeTooLong ? `已连续 ${durationText(activeDuration)}，请核对离开时间` : `本段已进行 ${durationText(activeDuration)}`) : mode.idleHint}</small></div><button class="clock-button" data-action="records-clock">${active ? '记录结束' : '记录开始'}</button></section>
     <section class="records-panel"><div class="records-panel-head"><div><h3>全部${mode.session}</h3><p>共 ${sessions.length} 段，数据仅保存在本机</p></div></div>${attendanceRows(sessions)}</section>
   </div>`;
 }
@@ -852,26 +988,111 @@ function quickAdd(input) {
     repeatRule: 'none', completedAt: null, completedOccurrenceKeys: [], createdAt: nowISO()
   });
   $('#quick-input').value = '';
+  $('#quick-preview').textContent = '';
+  $('#quick-preview').classList.remove('show');
   saveAndRender();
   showToast(result.scheduleKind === 'inbox' ? '已加入待安排' : `已安排到 ${formatShortDate(result.start)}${result.recognizedTime ? ` ${formatTime(result.start)}` : ''}`);
 }
 
+function renderQuickPreview(value) {
+  const preview = $('#quick-preview');
+  const input = value.trim();
+  if (!input) {
+    preview.textContent = '';
+    preview.classList.remove('show');
+    return;
+  }
+  const result = parse(input, new Date());
+  preview.textContent = result.scheduleKind === 'inbox'
+    ? '待安排'
+    : `${formatShortDate(result.start)}${result.recognizedTime ? ` · ${formatTime(result.start)}` : ''}`;
+  preview.classList.add('show');
+}
+
+function finishAttendance(session, leftAt, returnSection = null) {
+  session.leftAt = leftAt;
+  saveAndRender();
+  if (returnSection) openRecords(returnSection); else closeModal();
+  showToast('已记录结束时间');
+}
+
+function openLongSessionReview(session, returnSection = null) {
+  const suggested = new Date(Math.min(Date.now(), new Date(session.arrivedAt).getTime() + 8 * 60 * 60 * 1000));
+  modal(`<form id="long-session-form">
+    <div class="modal-header"><div><h2>请检查这段${currentMode().short}记录</h2><small class="modal-kicker">连续计时已超过 8 小时</small></div><button type="button" class="modal-close" data-action="close-modal">×</button></div>
+    <div class="modal-body"><div class="long-session-warning"><b>可能忘记记录结束时间</b><p>本段从 ${formatShortDate(session.arrivedAt)} ${formatTime(session.arrivedAt)} 开始，已经持续 ${durationText(Date.now() - new Date(session.arrivedAt))}。</p></div>
+      <div class="field"><label>实际结束时间</label><input name="leftAt" type="datetime-local" min="${dateTimeInputValue(session.arrivedAt)}" max="${dateTimeInputValue(new Date())}" value="${dateTimeInputValue(suggested)}" required></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="outline-button" id="continue-session">继续计时</button><button type="button" class="outline-button" id="finish-session-now">现在结束</button><button class="primary-button" type="submit">按填写时间结束</button></div>
+  </form>`);
+  $('#continue-session').addEventListener('click', () => { if (returnSection) openRecords(returnSection); else closeModal(); });
+  $('#finish-session-now').addEventListener('click', () => finishAttendance(session, nowISO(), returnSection));
+  $('#long-session-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const leftAt = fromLocalInput(new FormData(event.currentTarget).get('leftAt'));
+    if (!leftAt || new Date(leftAt) < new Date(session.arrivedAt) || new Date(leftAt) > new Date()) {
+      showToast('结束时间需位于开始时间与现在之间');
+      return;
+    }
+    finishAttendance(session, leftAt, returnSection);
+  });
+}
+
+function handleAttendanceClock(returnSection = null) {
+  const active = data.attendanceSessions.find((item) => !item.leftAt);
+  if (!active) {
+    data.attendanceSessions.push({ id: uid(), arrivedAt: nowISO(), leftAt: null });
+    saveAndRender();
+    if (returnSection) openRecords(returnSection);
+    showToast(`已开始${currentMode().short}计时`);
+    return;
+  }
+  if (Date.now() - new Date(active.arrivedAt) > 8 * 60 * 60 * 1000) {
+    openLongSessionReview(active, returnSection);
+    return;
+  }
+  finishAttendance(active, nowISO(), returnSection);
+}
+
+document.addEventListener('contextmenu', (event) => {
+  const taskElement = event.target.closest('[data-context-task]');
+  if (taskElement) openTaskContextMenu(event, taskElement);
+  else closeTaskContextMenu();
+});
+
 document.addEventListener('click', async (event) => {
+  const contextAction = event.target.closest('[data-context-action]');
+  if (contextAction) {
+    const action = contextAction.dataset.contextAction;
+    if (action === 'postpone') postponeTask(contextAction.dataset.id);
+    if (action === 'edit') openTaskEditor(contextAction.dataset.id);
+    if (action === 'ignore') ignoreOverdueOccurrence(contextAction.dataset.id, contextAction.dataset.date);
+    if (action === 'delete') {
+      data.tasks = data.tasks.filter((item) => item.id !== contextAction.dataset.id);
+      saveAndRender();
+      showToast('任务已删除');
+    }
+    closeTaskContextMenu();
+    return;
+  }
+  closeTaskContextMenu();
   const target = event.target.closest('[data-action]');
   if (!target) return;
   const action = target.dataset.action;
-  if (action === 'toggle-task') { event.stopPropagation(); toggleTask(target.dataset.id, target.dataset.date); }
+  if (action === 'toggle-task') {
+    event.stopPropagation();
+    const dayDetail = target.closest('.day-detail');
+    toggleTask(target.dataset.id, target.dataset.date);
+    if (dayDetail) openDayDetail(target.dataset.date);
+  }
   if (action === 'edit-task') { event.stopPropagation(); openTaskEditor(target.dataset.id); }
   if (action === 'new-on-date') { if (event.target.closest('[data-drag-task]')) return; openTaskEditor(null, target.dataset.date); }
+  if (action === 'open-day-detail') { if (event.target.closest('[data-drag-task]')) return; openDayDetail(target.dataset.date); }
   if (action === 'close-modal') closeModal();
   if (action === 'delete-task') {
     data.tasks = data.tasks.filter((item) => item.id !== target.dataset.id); saveAndRender(); closeModal(); showToast('任务已删除');
   }
-  if (action === 'clock') {
-    const active = data.attendanceSessions.find((item) => !item.leftAt);
-    if (active) active.leftAt = nowISO(); else data.attendanceSessions.push({ id: uid(), arrivedAt: nowISO(), leftAt: null });
-    saveAndRender(); showToast(active ? '已记录结束时间' : `已开始${currentMode().short}计时`);
-  }
+  if (action === 'clock') handleAttendanceClock();
   if (action === 'check-habit') { data.habitLogs.push({ id: uid(), habitID: target.dataset.id, timestamp: nowISO() }); saveAndRender(); }
   if (action === 'undo-habit') {
     const logs = data.habitLogs.filter((item) => item.habitID === target.dataset.id).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -879,8 +1100,19 @@ document.addEventListener('click', async (event) => {
     saveAndRender();
   }
   if (action === 'manage-habits') openHabitManager();
+  if (action === 'edit-habit') openHabitManager(target.dataset.id);
   if (action === 'manage-deadlines') openDeadlineManager();
   if (action === 'edit-deadline') openDeadlineManager(target.dataset.id);
+  if (action === 'ignore-deadline') {
+    const item = data.deadlines.find((deadline) => deadline.id === target.dataset.id);
+    if (item) item.isIgnored = true;
+    saveAndRender(); openDeadlineManager(); showToast('已忽略该日期');
+  }
+  if (action === 'restore-deadline') {
+    const item = data.deadlines.find((deadline) => deadline.id === target.dataset.id);
+    if (item) item.isIgnored = false;
+    saveAndRender(); openDeadlineManager(); showToast('已恢复显示');
+  }
   if (action === 'delete-deadline') { data.deadlines = data.deadlines.filter((item) => item.id !== target.dataset.id); saveAndRender(); openDeadlineManager(); showToast('已删除'); }
   if (action === 'delete-habit') { data.habits = data.habits.filter((item) => item.id !== target.dataset.id); data.habitLogs = data.habitLogs.filter((item) => item.habitID !== target.dataset.id); saveAndRender(); openHabitManager(); }
   if (action === 'records-section') openRecords(target.dataset.section);
@@ -899,11 +1131,7 @@ document.addEventListener('click', async (event) => {
     data.habitLogs = data.habitLogs.filter((item) => item.habitID !== target.dataset.id);
     saveAndRender(); openRecords('habits'); showToast('习惯已删除');
   }
-  if (action === 'records-clock') {
-    const active = data.attendanceSessions.find((item) => !item.leftAt);
-    if (active) active.leftAt = nowISO(); else data.attendanceSessions.push({ id: uid(), arrivedAt: nowISO(), leftAt: null });
-    saveAndRender(); openRecords('attendance'); showToast(active ? '已记录结束时间' : `已开始${currentMode().short}计时`);
-  }
+  if (action === 'records-clock') handleAttendanceClock('attendance');
   if (action === 'edit-session') openAttendanceEditor(target.dataset.id);
   if (action === 'records-back-attendance') openRecords('attendance');
   if (action === 'delete-session') { data.attendanceSessions = data.attendanceSessions.filter((item) => item.id !== target.dataset.id); saveAndRender(); openRecords('attendance'); showToast('打卡记录已删除'); }
@@ -932,6 +1160,7 @@ $('#settings-open').addEventListener('click', openSettings);
 $('#deadline-manage').addEventListener('click', () => openDeadlineManager());
 $('#records-open').addEventListener('click', () => openRecords('dashboard'));
 $('#quick-input').addEventListener('keydown', (event) => { if (event.key === 'Enter') quickAdd(event.currentTarget.value); });
+$('#quick-input').addEventListener('input', (event) => renderQuickPreview(event.currentTarget.value));
 $('#calendar-prev').addEventListener('click', () => { calendarAnchor = calendarView === 'week' ? addDays(calendarAnchor, -7) : new Date(calendarAnchor.getFullYear(), calendarAnchor.getMonth() - 1, 1); renderCalendar(); });
 $('#calendar-next').addEventListener('click', () => { calendarAnchor = calendarView === 'week' ? addDays(calendarAnchor, 7) : new Date(calendarAnchor.getFullYear(), calendarAnchor.getMonth() + 1, 1); renderCalendar(); });
 $('#calendar-today').addEventListener('click', () => { calendarAnchor = startOfDay(new Date()); renderCalendar(); });
@@ -942,9 +1171,12 @@ $('[data-close-drawer]').addEventListener('click', () => document.body.classList
 $('#modal-layer').addEventListener('mousedown', (event) => { if (event.target === event.currentTarget) closeModal(); });
 $$('[data-window]').forEach((button) => button.addEventListener('click', () => window.yanxu.windowAction(button.dataset.window)));
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') { closeModal(); document.body.classList.remove('drawer-open'); }
+  if (event.key === 'Escape') { closeTaskContextMenu(); closeModal(); document.body.classList.remove('drawer-open'); }
   if (event.ctrlKey && event.key.toLowerCase() === 'n') { event.preventDefault(); openTaskEditor(); }
 });
+window.addEventListener('blur', closeTaskContextMenu);
+window.addEventListener('resize', closeTaskContextMenu);
+document.addEventListener('scroll', closeTaskContextMenu, true);
 
 window.yanxu.onStateChanged((next) => { data = next; applyTheme(); renderAll(); });
 systemTheme.addEventListener('change', () => { if (data && normalizedSettings().theme === 'system') applyTheme(); });
@@ -960,6 +1192,11 @@ async function init() {
   const preview = params.get('preview');
   if (preview === 'settings') await openSettings();
   if (preview === 'records') openRecords('dashboard');
+  if (preview === 'day') openDayDetail(dateKey(new Date()));
+  if (preview === 'context') {
+    const target = $('[data-context-task]');
+    if (target) openTaskContextMenu({ preventDefault() {}, stopPropagation() {}, clientX: 270, clientY: 560 }, target);
+  }
   setInterval(() => { renderDashboard(); renderRightRail(); }, 60000);
 }
 

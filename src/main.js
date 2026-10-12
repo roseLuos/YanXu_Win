@@ -8,8 +8,8 @@ let widgetWindow = null;
 let cachedData = null;
 let saveQueue = Promise.resolve();
 let widgetBoundsTimer = null;
-const DATA_VERSION = 8;
-const WIDGET_SIZE = Object.freeze({ width: 930, height: 478 });
+const DATA_VERSION = 9;
+const WIDGET_SIZE = Object.freeze({ width: 760, height: 372 });
 
 function emptyData() {
   return {
@@ -27,7 +27,7 @@ function emptyData() {
       workspaceMode: 'research',
       desktopWidgetEnabled: true,
       desktopWidgetLocked: false,
-      desktopWidgetAppearance: 'dark',
+      desktopWidgetAppearance: 'light',
       desktopWidgetBounds: null
     }
   };
@@ -129,7 +129,7 @@ function normalizeData(value) {
       workspaceMode: normalizeWorkspaceMode(source.settings?.workspaceMode),
       desktopWidgetEnabled: source.settings?.desktopWidgetEnabled !== false,
       desktopWidgetLocked: source.settings?.desktopWidgetLocked === true,
-      desktopWidgetAppearance: source.settings?.desktopWidgetAppearance === 'light' ? 'light' : 'dark',
+      desktopWidgetAppearance: 'light',
       desktopWidgetBounds: normalizeWidgetBounds(source.settings?.desktopWidgetBounds)
     }
   };

@@ -17,7 +17,7 @@
       <div class="widget-header-spacer"></div>
       <div class="header-metric"><i class="green"></i><span><small id="today-duration-label">今日科研</small><b id="today-duration">0 分钟</b></span></div>
       <div class="header-metric"><i class="blue"></i><span><small>任务完成</small><b id="task-progress">0/0</b></span></div>
-      <button class="circle-button no-drag" id="appearance-toggle" title="切换明暗外观" aria-label="切换明暗外观">☀</button>
+      <button class="circle-button no-drag" id="reset-position" title="回到默认位置" aria-label="回到默认位置">↟</button>
       <button class="circle-button no-drag" id="lock-toggle" title="锁定卡片位置" aria-label="锁定卡片位置">⌖</button>
       <button class="circle-button close no-drag" id="widget-close" title="关闭桌面卡片" aria-label="关闭桌面卡片">×</button>
     </header>
@@ -29,6 +29,7 @@
 
     <section class="week-grid" id="week-grid"></section>
   </main>
+  <div class="widget-context-menu" id="widget-context-menu"></div>
   <div class="widget-toast" id="widget-toast"></div>
 
   <script src="../shared/workspace-modes.js"></script>
