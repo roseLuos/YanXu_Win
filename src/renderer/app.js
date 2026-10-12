@@ -26,16 +26,43 @@ function escapeHTML(value) {
 
 function iconSVG(name, className = '') {
   const icons = {
-    building: '<path d="M4 21V4.8C4 3.8 4.8 3 5.8 3h8.4c1 0 1.8.8 1.8 1.8V21M2 21h20M8 7h2m2 0h1M8 11h2m2 0h1M8 15h2m2 0h1m5-6h1.2c1 0 1.8.8 1.8 1.8V21m-3-8h1m-1 4h1"/>',
-    location: '<path class="filled" d="M12 2.5a7 7 0 0 0-7 7c0 5.25 7 12 7 12s7-6.75 7-12a7 7 0 0 0-7-7Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/>',
-    flask: '<path d="M9 3h6M10 3v5.2l-5.2 8.7A2.7 2.7 0 0 0 7.1 21h9.8a2.7 2.7 0 0 0 2.3-4.1L14 8.2V3M7.2 15h9.6"/>',
-    briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5.5C8 4.7 8.7 4 9.5 4h5c.8 0 1.5.7 1.5 1.5V7M3 12h18M10 12v2h4v-2"/>',
-    book: '<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H11v17H6.5A2.5 2.5 0 0 0 4 21.5v-17ZM20 4.5A2.5 2.5 0 0 0 17.5 2H13v17h4.5a2.5 2.5 0 0 1 2.5 2.5v-17Z"/>',
+    building: '<path d="M5 21V5.5A2.5 2.5 0 0 1 7.5 3H16v18M3 21h18M9 7h3m-3 4h3m-3 4h3m6-6h1a2 2 0 0 1 2 2v10m-3-6h1"/>',
+    location: '<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+    flask: '<path d="M9 3h6m-5 0v5.5l-5.2 8.4A2.7 2.7 0 0 0 7.1 21h9.8a2.7 2.7 0 0 0 2.3-4.1L14 8.5V3M7.4 15h9.2"/>',
+    briefcase: '<rect x="3" y="6.5" width="18" height="13.5" rx="2.5"/><path d="M8 6.5V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1.5M3 11.5h18M10 11.5v2h4v-2"/>',
+    book: '<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H11v17H6.5A2.5 2.5 0 0 0 4 21.5v-17Zm16 0A2.5 2.5 0 0 0 17.5 2H13v17h4.5a2.5 2.5 0 0 1 2.5 2.5v-17Z"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.1h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H3v-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V3h4v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1v4H21a1.7 1.7 0 0 0-1.6 1Z"/>',
+    timer: '<path d="M9 2h6m-3 0v3m6.4 1.6 1.4-1.4M20 13a8 8 0 1 1-8-8 8 8 0 0 1 8 8Z"/><path d="M12 9v4l2.5 1.5"/>',
+    chart: '<path d="M4 20V10m5 10V4m6 16v-7m5 7V7"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    minus: '<path d="M5 12h14"/>',
+    maximize: '<rect x="5" y="5" width="14" height="14" rx="1.5"/>',
+    close: '<path d="m6 6 12 12M18 6 6 18"/>',
+    chevronLeft: '<path d="m15 18-6-6 6-6"/>',
+    chevronRight: '<path d="m9 18 6-6-6-6"/>',
+    tray: '<path d="M4 5h16v14H4zM4 14h4l2 2h4l2-2h4"/>',
     check: '<path d="m5 12 4.2 4.2L19 6.5"/>',
-    repeat: '<path d="M17 2.8 21 7l-4 4.2M3 7h18M7 21.2 3 17l4-4.2M21 17H3"/>',
-    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>'
+    checkCircle: '<circle cx="12" cy="12" r="9"/><path d="m8 12 2.7 2.7L16.5 9"/>',
+    repeat: '<path d="m17 3 4 4-4 4M3 7h18m-14 14-4-4 4-4m14 4H3"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+    calendar: '<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M8 3v4m8-4v4M3 10h18"/>',
+    activity: '<path d="M3 12h4l2.3-6 4.1 12 2.3-6H21"/>',
+    arrowRight: '<path d="M5 12h14m-5-5 5 5-5 5"/>',
+    pencil: '<path d="m14.5 5.5 4 4M4 20l3.5-.7L19 7.8a2.1 2.1 0 0 0-3-3L4.7 16.2 4 20Z"/>',
+    eyeOff: '<path d="M3 3l18 18M10.6 10.7A2 2 0 0 0 13.4 13.4M9.9 4.3A10.9 10.9 0 0 1 12 4c6 0 9 8 9 8a15 15 0 0 1-2.2 3.4M6.6 6.7C4.2 8.2 3 12 3 12s3 8 9 8a9.7 9.7 0 0 0 4-.9"/>',
+    trash: '<path d="M4 7h16M9 3h6l1 4H8l1-4Zm-3 4 1 14h10l1-14M10 11v6m4-6v6"/>',
+    undo: '<path d="m9 8-5 4 5 4v-3h5a5 5 0 0 1 5 5v1m0-11V5"/>',
+    flag: '<path d="M5 21V4m0 1h11l-2 3 2 3H5"/>',
+    externalLink: '<path d="M14 4h6v6m0-6-9 9M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/>',
+    reset: '<path d="M4 10a8 8 0 1 1 2 7m-2-7V5m0 5h5"/>',
+    lock: '<rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+    unlock: '<rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 7.5-2"/>'
   };
   return `<svg class="app-icon ${className}" viewBox="0 0 24 24" aria-hidden="true">${icons[name] || icons.building}</svg>`;
+}
+
+function hydrateStaticIcons(root = document) {
+  $$('[data-icon]', root).forEach((element) => { element.innerHTML = iconSVG(element.dataset.icon); });
 }
 
 function dateKey(value) {
@@ -247,7 +274,7 @@ function renderDashboard() {
   const percent = planned ? Math.round(completed / planned * 100) : 0;
   $('#dashboard').innerHTML = `
     <article class="dashboard-card blue">
-      <div class="eyebrow"><span class="dot">◷</span>${mode.weekDuration}</div>
+      <div class="eyebrow"><span class="dot">${iconSVG('clock')}</span>${mode.weekDuration}</div>
       <div class="metric-main">${durationText(focusMs)}</div>
       <div class="metric-row">
         <div class="micro-metric"><span>最早开始</span><b>${earliest ? formatTime(earliest) : '—'}</b></div>
@@ -256,13 +283,13 @@ function renderDashboard() {
       </div>
     </article>
     <article class="dashboard-card orange">
-      <div class="eyebrow"><span class="dot">✓</span>完成任务情况</div>
+      <div class="eyebrow"><span class="dot">${iconSVG('check')}</span>完成任务情况</div>
       <div class="metric-main">${completed}<small>/ ${planned} 项</small></div>
       <div class="progress"><i style="width:${Math.min(100, percent)}%"></i></div>
       <div class="metric-sub">本周完成率 ${percent}%</div>
     </article>
     <article class="dashboard-card green">
-      <div class="eyebrow"><span class="dot">↔</span>习惯打卡情况</div>
+      <div class="eyebrow"><span class="dot">${iconSVG('activity')}</span>习惯打卡情况</div>
       ${data.habits.length ? data.habits.slice(0, 3).map((habit) => {
         const count = weekHabitCount(habit.id);
         return `<div class="habit-mini"><b>${escapeHTML(habit.name)}</b><div class="progress"><i style="width:${Math.min(100, count / habit.weeklyTarget * 100)}%;background:var(--green)"></i></div><em>${count}/${habit.weeklyTarget}</em></div>`;
@@ -271,16 +298,16 @@ function renderDashboard() {
 }
 
 function taskMeta(task, date) {
-  if (task.scheduleKind === 'fixed') return `◷ ${formatTime(new Date(new Date(date).setHours(new Date(task.start).getHours(), new Date(task.start).getMinutes())))}`;
+  if (task.scheduleKind === 'fixed') return `${iconSVG('clock', 'meta-icon')} ${formatTime(new Date(new Date(date).setHours(new Date(task.start).getHours(), new Date(task.start).getMinutes())))}`;
   if (task.scheduleKind === 'range') return `${formatShortDate(task.start)}–${formatShortDate(task.end || task.start)}`;
   if (task.scheduleKind === 'inbox') return '等待安排日期';
-  return `▦ ${formatShortDate(date)}`;
+  return `${iconSVG('calendar', 'meta-icon')} ${formatShortDate(date)}`;
 }
 
 function taskRow(task, occurrenceDate, extraClass = '') {
   const complete = taskComplete(task, occurrenceDate);
   return `<div class="task-row ${extraClass} ${complete ? 'completed' : ''}" data-task-row="${task.id}" data-context-task="${task.id}" data-context-date="${dateKey(occurrenceDate)}" data-context-overdue="${extraClass === 'overdue'}">
-    <button class="task-check ${complete ? 'checked' : ''}" data-action="toggle-task" data-id="${task.id}" data-date="${dateKey(occurrenceDate)}">${complete ? '✓' : ''}</button>
+    <button class="task-check ${complete ? 'checked' : ''}" data-action="toggle-task" data-id="${task.id}" data-date="${dateKey(occurrenceDate)}">${complete ? iconSVG('check') : ''}</button>
     <div class="task-name">${escapeHTML(task.title)}</div>
     <div class="task-meta">${taskMeta(task, occurrenceDate)}</div>
     <button class="task-menu" data-action="edit-task" data-id="${task.id}">•••</button>
@@ -312,7 +339,7 @@ function renderToday() {
 function calendarTask(task, date) {
   const complete = taskComplete(task, date);
   return `<div class="calendar-task ${task.scheduleKind} ${complete ? 'completed' : ''}" draggable="true" data-drag-task="${task.id}" data-context-task="${task.id}" data-context-date="${dateKey(date)}" data-action="edit-task" data-id="${task.id}">
-    <button class="task-check ${complete ? 'checked' : ''}" data-action="toggle-task" data-id="${task.id}" data-date="${dateKey(date)}">${complete ? '✓' : ''}</button>
+    <button class="task-check ${complete ? 'checked' : ''}" data-action="toggle-task" data-id="${task.id}" data-date="${dateKey(date)}">${complete ? iconSVG('check') : ''}</button>
     <strong>${escapeHTML(task.title)}</strong>${task.scheduleKind === 'fixed' ? `<small>${formatTime(task.start)}</small>` : task.scheduleKind === 'range' ? '<small>日期范围</small>' : ''}
   </div>`;
 }
@@ -326,7 +353,7 @@ function renderWeekCalendar() {
       <button class="day-head" data-action="open-day-detail" data-date="${dateKey(day)}" title="查看当天详情"><span>${weekday(day)}</span><b>${day.getDate()}</b></button>
       <div class="day-tasks" data-drop-date="${dateKey(day)}">
         ${tasksOn(day).map((task) => calendarTask(task, day)).join('')}
-        <button class="day-add" data-action="new-on-date" data-date="${dateKey(day)}">＋ 添加</button>
+        <button class="day-add" data-action="new-on-date" data-date="${dateKey(day)}">${iconSVG('plus')}添加</button>
       </div>
     </section>`).join('')}</div>`;
   bindCalendarDrag();
@@ -403,14 +430,14 @@ function renderRightRail() {
       </div>
     </section>
     <section class="rail-card">
-      <div class="rail-title"><span>↔</span>本周习惯 <button class="text-button" data-action="manage-habits">管理</button></div>
+      <div class="rail-title"><span>${iconSVG('activity')}</span>本周习惯 <button class="text-button" data-action="manage-habits">管理</button></div>
       <div class="habit-list">${data.habits.length ? data.habits.map((habit) => {
         const count = weekHabitCount(habit.id);
-        return `<div class="habit-row"><div class="habit-line"><div><b>${escapeHTML(habit.name)}</b><small>　${count}/${habit.weeklyTarget}</small></div><div class="habit-buttons"><button class="undo" data-action="undo-habit" data-id="${habit.id}">↶</button><button data-action="check-habit" data-id="${habit.id}">✓ +1</button></div></div><div class="progress"><i style="width:${Math.min(100, count / habit.weeklyTarget * 100)}%;background:var(--green)"></i></div></div>`;
+        return `<div class="habit-row"><div class="habit-line"><div><b>${escapeHTML(habit.name)}</b><small>　${count}/${habit.weeklyTarget}</small></div><div class="habit-buttons"><button class="undo" data-action="undo-habit" data-id="${habit.id}" title="撤销">${iconSVG('undo')}</button><button data-action="check-habit" data-id="${habit.id}">${iconSVG('check')}<span>+1</span></button></div></div><div class="progress"><i style="width:${Math.min(100, count / habit.weeklyTarget * 100)}%;background:var(--green)"></i></div></div>`;
       }).join('') : '<div class="empty-block">添加一个每周习惯目标</div>'}</div>
     </section>
     <section class="rail-card">
-      <div class="rail-title"><span>◷</span>最近 DDL <button class="text-button" data-action="manage-deadlines">管理</button></div>
+      <div class="rail-title"><span>${iconSVG('timer')}</span>最近 DDL <button class="text-button" data-action="manage-deadlines">管理</button></div>
       <div class="deadline-section">
         <div class="deadline-subtitle">我的 DDL <span>${personal.length}</span></div>
         ${personal.length ? personal.map((item) => deadlineItem(item)).join('') : '<div class="empty-block">还没有个人 DDL</div>'}
@@ -489,11 +516,11 @@ function openTaskContextMenu(event, element) {
   const canIgnore = element.dataset.contextOverdue === 'true' && occurrenceDate;
   const menu = $('#task-context-menu');
   menu.innerHTML = `
-    ${canPostpone ? `<button data-context-action="postpone" data-id="${task.id}"><span>→</span>延后一天</button>` : ''}
-    <button data-context-action="edit" data-id="${task.id}"><span>✎</span>编辑任务</button>
-    ${canIgnore ? `<button data-context-action="ignore" data-id="${task.id}" data-date="${occurrenceDate}"><span>◌</span>忽略此条逾期</button>` : ''}
+    ${canPostpone ? `<button data-context-action="postpone" data-id="${task.id}">${iconSVG('arrowRight')}<span>延后一天</span></button>` : ''}
+    <button data-context-action="edit" data-id="${task.id}">${iconSVG('pencil')}<span>编辑任务</span></button>
+    ${canIgnore ? `<button data-context-action="ignore" data-id="${task.id}" data-date="${occurrenceDate}">${iconSVG('eyeOff')}<span>忽略此条逾期</span></button>` : ''}
     <i></i>
-    <button class="danger" data-context-action="delete" data-id="${task.id}"><span>⌫</span>删除任务</button>`;
+    <button class="danger" data-context-action="delete" data-id="${task.id}">${iconSVG('trash')}<span>删除任务</span></button>`;
   menu.classList.add('open');
   menu.setAttribute('aria-hidden', 'false');
   const margin = 8;
@@ -551,7 +578,7 @@ function dayDetailTask(task, day) {
         ? ({ daily: '每天', weekly: '每周', monthly: '每月' }[task.repeatRule] || '')
         : '';
   return `<div class="day-detail-task ${complete ? 'completed' : ''}" data-context-task="${task.id}" data-context-date="${dateKey(day)}">
-    <button class="day-detail-check ${complete ? 'checked' : ''}" data-action="toggle-task" data-id="${task.id}" data-date="${dateKey(day)}">${complete ? '✓' : ''}</button>
+    <button class="day-detail-check ${complete ? 'checked' : ''}" data-action="toggle-task" data-id="${task.id}" data-date="${dateKey(day)}">${complete ? iconSVG('check') : ''}</button>
     <button class="day-detail-copy" data-action="edit-task" data-id="${task.id}"><b>${escapeHTML(task.title)}</b>${task.notes ? `<small>${escapeHTML(task.notes)}</small>` : ''}</button>
     ${metadata ? `<span>${escapeHTML(metadata)}</span>` : ''}
     <button class="day-detail-more" data-action="edit-task" data-id="${task.id}" title="编辑任务">•••</button>
@@ -579,22 +606,22 @@ function openDayDetail(dateValue) {
     dayDetailSection('具体时间', '时间只作提示', fixed, day),
     dayDetailSection('当天任务', '', dated, day),
     dayDetailSection('可在当天完成', '日期范围任务', ranged, day),
-    deadlines.length ? `<section class="day-detail-section"><div class="day-detail-section-head"><b>里程碑与 DDL</b><em>${deadlines.length}</em></div>${deadlines.map((item) => `<button class="day-detail-deadline" data-action="edit-deadline" data-id="${item.id}"><i>${item.kind === 'milestone' ? '◆' : '◷'}</i><b>${escapeHTML(item.title)}</b><span>${item.includesTime ? formatTime(item.dueDate) : item.kind === 'milestone' ? '起始' : '截止'}</span></button>`).join('')}</section>` : '',
+    deadlines.length ? `<section class="day-detail-section"><div class="day-detail-section-head"><b>里程碑与 DDL</b><em>${deadlines.length}</em></div>${deadlines.map((item) => `<button class="day-detail-deadline" data-action="edit-deadline" data-id="${item.id}"><i>${iconSVG(item.kind === 'milestone' ? 'flag' : 'timer')}</i><b>${escapeHTML(item.title)}</b><span>${item.includesTime ? formatTime(item.dueDate) : item.kind === 'milestone' ? '起始' : '截止'}</span></button>`).join('')}</section>` : '',
     dayDetailSection('已完成', '', completed, day)
   ].join('');
-  modal(`<div class="day-detail"><div class="modal-header day-detail-header"><div><h2>${relativeTitle}</h2><small>${incomplete.length ? `${incomplete.length} 项待完成` : '没有未完成任务'}</small></div><div><button class="outline-button" data-action="new-on-date" data-date="${dateKey(day)}">＋ 添加任务</button><button class="modal-close" data-action="close-modal">×</button></div></div><div class="modal-body day-detail-body">${content || `<div class="day-detail-empty"><b>这一天还没有任务</b><span>可以安排一件要推进的事</span><button class="primary-button" data-action="new-on-date" data-date="${dateKey(day)}">添加任务</button></div>`}</div></div>`);
+  modal(`<div class="day-detail"><div class="modal-header day-detail-header"><div><h2>${relativeTitle}</h2><small>${incomplete.length ? `${incomplete.length} 项待完成` : '没有未完成任务'}</small></div><div><button class="outline-button" data-action="new-on-date" data-date="${dateKey(day)}">${iconSVG('plus')}添加任务</button><button class="modal-close" data-action="close-modal" aria-label="关闭">${iconSVG('close')}</button></div></div><div class="modal-body day-detail-body">${content || `<div class="day-detail-empty"><b>这一天还没有任务</b><span>可以安排一件要推进的事</span><button class="primary-button" data-action="new-on-date" data-date="${dateKey(day)}">${iconSVG('plus')}添加任务</button></div>`}</div></div>`);
   $('#modal-card').classList.add('day-detail-card');
 }
 
 async function openSettings() {
   const settings = normalizedSettings();
   const system = await window.yanxu.getSystemSettings();
-  modal(`<div class="modal-header"><h2>设置</h2><button class="modal-close" data-action="close-modal">×</button></div>
+  modal(`<div class="modal-header"><h2>设置</h2><button class="modal-close" data-action="close-modal" aria-label="关闭">${iconSVG('close')}</button></div>
     <div class="modal-body settings-page">
       <section class="settings-section mode-settings-section">
         <div class="settings-section-head"><div><h3>工作区模式</h3><p>切换场景后，主色、快捷提示、数据看板与打卡文案会同步变化；已有数据保持共享。</p></div></div>
         <div class="mode-options">
-          ${Object.entries(WORKSPACE_MODES).map(([key, mode]) => `<button type="button" class="mode-option ${settings.workspaceMode === key ? 'active' : ''}" data-setting-mode="${key}"><span>${iconSVG(mode.icon)}</span><b>${mode.label}</b><small>${mode.description}</small><i>✓</i></button>`).join('')}
+          ${Object.entries(WORKSPACE_MODES).map(([key, mode]) => `<button type="button" class="mode-option ${settings.workspaceMode === key ? 'active' : ''}" data-setting-mode="${key}"><span>${iconSVG(mode.icon)}</span><b>${mode.label}</b><small>${mode.description}</small><i>${iconSVG('check')}</i></button>`).join('')}
         </div>
       </section>
       <section class="settings-section">
@@ -671,7 +698,7 @@ function openTaskEditor(id = null, defaultDate = null) {
     end: null, repeatRule: 'none', completedAt: null, completedOccurrenceKeys: [], createdAt: nowISO()
   };
   modal(`<form id="task-form">
-    <div class="modal-header"><h2>${existing ? '编辑任务' : '新建任务'}</h2><button type="button" class="modal-close" data-action="close-modal">×</button></div>
+    <div class="modal-header"><h2>${existing ? '编辑任务' : '新建任务'}</h2><button type="button" class="modal-close" data-action="close-modal" aria-label="关闭">${iconSVG('close')}</button></div>
     <div class="modal-body"><div class="form-grid">
       <div class="field full"><label>任务名称</label><input name="title" required autofocus maxlength="120" value="${escapeHTML(task.title)}" placeholder="要完成什么？"></div>
       <div class="field full"><label>备注</label><textarea name="notes" placeholder="补充材料、链接或说明">${escapeHTML(task.notes || '')}</textarea></div>
@@ -745,7 +772,7 @@ function openTaskEditor(id = null, defaultDate = null) {
 
 function openDeadlineManager(editId = null) {
   const editing = editId ? data.deadlines.find((item) => item.id === editId) : null;
-  modal(`<div class="modal-header"><h2>里程碑与 DDL</h2><button class="modal-close" data-action="close-modal">×</button></div>
+  modal(`<div class="modal-header"><h2>里程碑与 DDL</h2><button class="modal-close" data-action="close-modal" aria-label="关闭">${iconSVG('close')}</button></div>
     <div class="modal-body">
       <form id="deadline-form"><div class="form-grid">
         <div class="field full"><label>名称</label><input name="title" required value="${escapeHTML(editing?.title || '')}" placeholder="例如：论文投稿截止"></div>
@@ -784,7 +811,7 @@ function openDeadlineManager(editId = null) {
 
 function openHabitManager(editId = null) {
   const editing = editId ? data.habits.find((item) => item.id === editId) : null;
-  modal(`<div class="modal-header"><h2>${editing ? '编辑习惯' : '习惯管理'}</h2><button class="modal-close" data-action="close-modal">×</button></div>
+  modal(`<div class="modal-header"><h2>${editing ? '编辑习惯' : '习惯管理'}</h2><button class="modal-close" data-action="close-modal" aria-label="关闭">${iconSVG('close')}</button></div>
     <div class="modal-body"><form id="habit-form"><div class="form-grid"><div class="field"><label>习惯名称</label><input name="name" required value="${escapeHTML(editing?.name || '')}" placeholder="例如：英文写作"></div><div class="field"><label>每周目标次数</label><input name="target" type="number" min="1" max="99" value="${editing?.weeklyTarget || 3}" required></div></div><div class="modal-footer" style="padding:14px 0 0">${editing ? '<button type="button" class="outline-button" data-action="manage-habits">取消编辑</button>' : ''}<button class="primary-button">${editing ? '保存修改' : '添加习惯'}</button></div></form>
       <div class="manage-list">${data.habits.map((habit) => `<div class="manage-row"><div class="copy"><b>${escapeHTML(habit.name)}</b><small>每周 ${habit.weeklyTarget} 次 · 本周完成 ${weekHabitCount(habit.id)} 次</small></div><button data-action="edit-habit" data-id="${habit.id}">编辑</button><button data-action="delete-habit" data-id="${habit.id}">删除</button></div>`).join('') || '<div class="empty-block">还没有习惯</div>'}</div></div>`);
   $('#habit-form').addEventListener('submit', (event) => {
@@ -902,7 +929,7 @@ function dashboardRecordsContent() {
   }));
   return `<div class="records-dashboard">
     <div class="records-toolbar">
-      <div class="records-date-nav"><button data-action="records-move" data-direction="-1">‹</button><button data-action="records-today">今天</button><button data-action="records-move" data-direction="1">›</button><h3>${recordsPeriodTitle()}</h3></div>
+      <div class="records-date-nav"><button data-action="records-move" data-direction="-1" aria-label="上一页">${iconSVG('chevronLeft')}</button><button data-action="records-today">今天</button><button data-action="records-move" data-direction="1" aria-label="下一页">${iconSVG('chevronRight')}</button><h3>${recordsPeriodTitle()}</h3></div>
       <div class="segmented records-period"><button data-action="records-period" data-period="day" class="${recordsState.period === 'day' ? 'active' : ''}">日</button><button data-action="records-period" data-period="week" class="${recordsState.period === 'week' ? 'active' : ''}">周</button><button data-action="records-period" data-period="month" class="${recordsState.period === 'month' ? 'active' : ''}">月</button></div>
     </div>
     <div class="records-metrics">
@@ -925,11 +952,11 @@ function habitsRecordsContent() {
   const weekStart = mondayOf(new Date());
   const weekStop = addDays(weekStart, 7);
   return `<div class="records-dashboard">
-    <div class="records-section-intro"><div><h2>习惯</h2><p>按周追踪${mode.short}习惯，在这里打卡或撤销最近一次记录。</p></div><button class="primary-button" data-action="manage-habits">＋ 添加习惯</button></div>
+    <div class="records-section-intro"><div><h2>习惯</h2><p>按周追踪${mode.short}习惯，在这里打卡或撤销最近一次记录。</p></div><button class="primary-button" data-action="manage-habits">${iconSVG('plus')}添加习惯</button></div>
     <div class="record-habit-grid">${data.habits.map((habit) => {
       const logs = data.habitLogs.filter((item) => item.habitID === habit.id && inInterval(item.timestamp, weekStart, weekStop)).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       const progress = Math.min(100, logs.length / Math.max(1, habit.weeklyTarget) * 100);
-      return `<article class="record-habit-card"><div class="record-habit-card-head"><div><span>本周习惯</span><h3>${escapeHTML(habit.name)}</h3></div><div class="record-card-actions"><button data-action="edit-habit" data-id="${habit.id}">编辑</button><button class="record-delete" data-action="records-delete-habit" data-id="${habit.id}">删除</button></div></div><div class="record-habit-count"><strong>${logs.length}</strong><span>/ ${habit.weeklyTarget} 次</span></div><div class="record-progress"><i style="width:${progress}%"></i></div><p>${logs.length >= habit.weeklyTarget ? '本周目标已完成，做得不错。' : `还差 ${habit.weeklyTarget - logs.length} 次完成本周目标。`}</p><div class="record-habit-actions"><button data-action="records-undo-habit" data-id="${habit.id}">↶ 撤销</button><button data-action="records-check-habit" data-id="${habit.id}">✓ 打卡 +1</button></div></article>`;
+      return `<article class="record-habit-card"><div class="record-habit-card-head"><div><span>本周习惯</span><h3>${escapeHTML(habit.name)}</h3></div><div class="record-card-actions"><button data-action="edit-habit" data-id="${habit.id}">编辑</button><button class="record-delete" data-action="records-delete-habit" data-id="${habit.id}">删除</button></div></div><div class="record-habit-count"><strong>${logs.length}</strong><span>/ ${habit.weeklyTarget} 次</span></div><div class="record-progress"><i style="width:${progress}%"></i></div><p>${logs.length >= habit.weeklyTarget ? '本周目标已完成，做得不错。' : `还差 ${habit.weeklyTarget - logs.length} 次完成本周目标。`}</p><div class="record-habit-actions"><button data-action="records-undo-habit" data-id="${habit.id}">${iconSVG('undo')}撤销</button><button data-action="records-check-habit" data-id="${habit.id}">${iconSVG('check')}打卡 +1</button></div></article>`;
     }).join('') || '<div class="records-empty wide">还没有习惯，添加一个每周目标开始记录。</div>'}</div>
   </div>`;
 }
@@ -956,7 +983,7 @@ function openRecords(section = recordsState.section) {
   modal(`<div class="records-shell">
     <div class="records-header"><div class="records-heading"><h2>${mode.label}记录</h2><span>${mode.recordsSubtitle}</span></div>
       <div class="records-tabs"><button data-action="records-section" data-section="dashboard" class="${section === 'dashboard' ? 'active' : ''}">看板</button><button data-action="records-section" data-section="habits" class="${section === 'habits' ? 'active' : ''}">习惯</button><button data-action="records-section" data-section="attendance" class="${section === 'attendance' ? 'active' : ''}">打卡记录</button></div>
-      <button class="modal-close" data-action="close-modal">×</button>
+      <button class="modal-close" data-action="close-modal" aria-label="关闭">${iconSVG('close')}</button>
     </div><div class="records-content">${content}</div>
   </div>`);
   $('#modal-card').classList.add('records-card');
@@ -966,7 +993,7 @@ function openAttendanceEditor(id) {
   const session = data.attendanceSessions.find((item) => item.id === id);
   if (!session) return;
   const mode = currentMode();
-  modal(`<form id="attendance-form"><div class="modal-header"><h2>编辑${mode.session}</h2><button type="button" class="modal-close" data-action="records-back-attendance">×</button></div><div class="modal-body"><div class="form-grid"><div class="field"><label>开始时间</label><input name="arrivedAt" type="datetime-local" required value="${dateTimeInputValue(session.arrivedAt)}"></div><div class="field"><label>结束时间</label><input name="leftAt" type="datetime-local" value="${dateTimeInputValue(session.leftAt)}"></div></div><div class="info-box attendance-editor-note">结束时间留空表示这段${mode.short}计时仍在进行。</div></div><div class="modal-footer"><button type="button" class="outline-button" data-action="records-back-attendance">取消</button><button class="primary-button" type="submit">保存修改</button></div></form>`);
+  modal(`<form id="attendance-form"><div class="modal-header"><h2>编辑${mode.session}</h2><button type="button" class="modal-close" data-action="records-back-attendance" aria-label="关闭">${iconSVG('close')}</button></div><div class="modal-body"><div class="form-grid"><div class="field"><label>开始时间</label><input name="arrivedAt" type="datetime-local" required value="${dateTimeInputValue(session.arrivedAt)}"></div><div class="field"><label>结束时间</label><input name="leftAt" type="datetime-local" value="${dateTimeInputValue(session.leftAt)}"></div></div><div class="info-box attendance-editor-note">结束时间留空表示这段${mode.short}计时仍在进行。</div></div><div class="modal-footer"><button type="button" class="outline-button" data-action="records-back-attendance">取消</button><button class="primary-button" type="submit">保存修改</button></div></form>`);
   $('#attendance-form').addEventListener('submit', (event) => {
     event.preventDefault();
     const fd = new FormData(event.currentTarget);
@@ -1019,7 +1046,7 @@ function finishAttendance(session, leftAt, returnSection = null) {
 function openLongSessionReview(session, returnSection = null) {
   const suggested = new Date(Math.min(Date.now(), new Date(session.arrivedAt).getTime() + 8 * 60 * 60 * 1000));
   modal(`<form id="long-session-form">
-    <div class="modal-header"><div><h2>请检查这段${currentMode().short}记录</h2><small class="modal-kicker">连续计时已超过 8 小时</small></div><button type="button" class="modal-close" data-action="close-modal">×</button></div>
+    <div class="modal-header"><div><h2>请检查这段${currentMode().short}记录</h2><small class="modal-kicker">连续计时已超过 8 小时</small></div><button type="button" class="modal-close" data-action="close-modal" aria-label="关闭">${iconSVG('close')}</button></div>
     <div class="modal-body"><div class="long-session-warning"><b>可能忘记记录结束时间</b><p>本段从 ${formatShortDate(session.arrivedAt)} ${formatTime(session.arrivedAt)} 开始，已经持续 ${durationText(Date.now() - new Date(session.arrivedAt))}。</p></div>
       <div class="field"><label>实际结束时间</label><input name="leftAt" type="datetime-local" min="${dateTimeInputValue(session.arrivedAt)}" max="${dateTimeInputValue(new Date())}" value="${dateTimeInputValue(suggested)}" required></div>
     </div>
@@ -1182,6 +1209,7 @@ window.yanxu.onStateChanged((next) => { data = next; applyTheme(); renderAll(); 
 systemTheme.addEventListener('change', () => { if (data && normalizedSettings().theme === 'system') applyTheme(); });
 
 async function init() {
+  hydrateStaticIcons();
   data = await window.yanxu.loadState();
   const params = new URLSearchParams(location.search);
   const previewMode = params.get('mode');

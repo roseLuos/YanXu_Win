@@ -14,7 +14,7 @@
   --violet: #8b79df;
   --violet-soft: #f2effe;
   --shadow: 0 16px 42px rgba(36, 47, 66, .15);
-  font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  font-family: "Segoe UI Variable Text", "Segoe UI Variable", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
   color: var(--ink);
   background: var(--canvas);
   font-synthesis: none;
@@ -43,7 +43,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; user-select: none; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; user-select: none; -webkit-font-smoothing: auto; text-rendering: auto; font-kerning: normal; }
 button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease; }
 .drag-region { -webkit-app-region: drag; }
@@ -57,8 +57,8 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .brand img { width: 31px; height: 31px; border-radius: 7px; }
 .brand div { display: flex; flex-direction: column; gap: 1px; }
 .brand strong { display: flex; align-items: center; gap: 7px; font-size: 14px; }
-.brand strong em { padding: 2px 6px; border-radius: 99px; background: var(--blue-soft); color: var(--blue); font-size: 8px; font-style: normal; font-weight: 650; }
-.brand span { color: var(--muted); font-size: 9px; }
+.brand strong em { padding: 2px 6px; border-radius: 99px; background: var(--blue-soft); color: var(--blue); font-size: 9px; font-style: normal; font-weight: 650; }
+.brand span { color: var(--muted); font-size: 10px; }
 .top-actions { height: 100%; display: flex; align-items: center; gap: 8px; }
 .header-button, .outline-button {
   border: 1px solid var(--border); background: rgba(255,255,255,.72); border-radius: 10px;
@@ -67,9 +67,11 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .header-button:hover, .outline-button:hover { background: #fff; border-color: #cad2de; }
 .header-button b { font-weight: 600; }
 .header-button i { font-style: normal; }
-.header-icon { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.header-button [data-icon] { width: 16px; height: 16px; display: grid; place-items: center; color: var(--muted); }
+.header-button [data-icon] .app-icon { width: 16px; height: 16px; }
 .window-controls { height: 100%; margin-left: 6px; display: flex; }
-.window-controls button { width: 45px; border: 0; background: transparent; font-size: 15px; }
+.window-controls button { width: 45px; border: 0; background: transparent; display: grid; place-items: center; }
+.window-controls .app-icon { width: 14px; height: 14px; stroke-width: 1.6; }
 .window-controls button:hover { background: #e9edf3; }
 .window-controls .close:hover { background: #e95454; color: #fff; }
 
@@ -83,6 +85,7 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .dashboard-card.green { background: var(--green-soft); }
 .eyebrow { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 650; }
 .eyebrow .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-grid; place-items: center; color: white; font-size: 8px; }
+.eyebrow .dot .app-icon { width: 8px; height: 8px; stroke-width: 2.4; }
 .blue .eyebrow .dot { background: var(--blue); }
 .orange .eyebrow .dot { background: var(--orange); }
 .green .eyebrow .dot { background: var(--green); }
@@ -91,7 +94,7 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .metric-sub { margin-top: 10px; color: var(--muted); font-size: 10px; }
 .metric-row { display: flex; gap: 7px; margin-top: 12px; }
 .micro-metric { min-width: 0; flex: 1; padding: 7px 8px; background: rgba(255,255,255,.6); border-radius: 8px; }
-.micro-metric span { display: block; color: var(--muted); font-size: 8px; }
+.micro-metric span { display: block; color: var(--muted); font-size: 9px; }
 .micro-metric b { display: block; margin-top: 2px; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .progress { height: 7px; border-radius: 99px; background: #edf0f4; overflow: hidden; margin-top: 14px; }
 .progress > i { display: block; height: 100%; border-radius: inherit; background: #77a1fb; }
@@ -104,15 +107,16 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .today-panel { display: flex; flex-direction: column; overflow: hidden; }
 .panel-title { padding: 13px 15px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .panel-title h2, .drawer-title h2 { margin: 0; font-size: 18px; }
-.panel-title span { display: block; color: var(--muted); font-size: 9px; margin-top: 3px; }
+.panel-title span { display: block; color: var(--muted); font-size: 10px; margin-top: 3px; }
 .today-tools { display: flex; align-items: center; gap: 8px; }
-.today-tools small { color: var(--muted); font-size: 9px; }
+.today-tools small { color: var(--muted); font-size: 10px; }
 .outline-button { padding: 7px 11px; color: var(--blue); border-color: color-mix(in srgb, var(--blue) 35%, var(--border)); font-size: 11px; }
 .quick-add { margin: 13px 15px 6px; height: 42px; display: flex; align-items: center; gap: 8px; background: #f7f8fa; border: 1px solid var(--border); border-radius: 9px; padding: 0 11px; }
-.quick-add span { color: var(--blue); font-size: 18px; }
-.quick-add input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; font-size: 11px; user-select: text; }
+.quick-add > span { width: 17px; height: 17px; display: grid; place-items: center; color: var(--blue); }
+.quick-add > span .app-icon { width: 16px; height: 16px; stroke-width: 2; }
+.quick-add input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; font-size: 12px; user-select: text; }
 .quick-add input::placeholder { color: #b0b6c0; }
-.quick-add em { display: none; flex: 0 0 auto; padding: 4px 7px; border-radius: 6px; background: var(--blue-soft); color: var(--blue); font-size: 8px; font-style: normal; white-space: nowrap; }
+.quick-add em { display: none; flex: 0 0 auto; padding: 4px 7px; border-radius: 6px; background: var(--blue-soft); color: var(--blue); font-size: 9px; font-style: normal; white-space: nowrap; }
 .quick-add em.show { display: block; }
 .quick-add kbd { display: none; color: var(--muted); font-size: 10px; }
 .quick-add:focus-within kbd { display: block; }
@@ -129,10 +133,12 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .task-row.overdue { background: #fff6e9; }
 .task-row.completed { opacity: .55; }
 .task-row.completed .task-name { text-decoration: line-through; }
-.task-check { position: absolute; left: 12px; top: 16px; width: 17px; height: 17px; border: 1.5px solid #aeb7c4; border-radius: 4px; background: white; display: grid; place-items: center; padding: 0; color: white; font-size: 11px; }
+.task-check { position: absolute; left: 12px; top: 16px; width: 17px; height: 17px; border: 1.5px solid #9da8b8; border-radius: 4px; background: white; display: grid; place-items: center; padding: 0; color: white; }
 .task-check.checked { background: #78a2fa; border-color: #78a2fa; }
-.task-name { font-size: 11px; font-weight: 600; line-height: 1.35; }
-.task-meta { margin-top: 4px; color: #99a1ae; font-size: 9px; }
+.task-check .app-icon { width: 12px; height: 12px; stroke-width: 2.6; }
+.task-name { font-size: 12px; font-weight: 600; line-height: 1.35; }
+.task-meta { margin-top: 4px; display: flex; align-items: center; gap: 4px; color: #8993a2; font-size: 10px; }
+.task-meta .meta-icon { width: 11px; height: 11px; }
 .task-menu { position: absolute; right: 8px; top: 15px; border: 0; background: transparent; color: #a2a9b3; letter-spacing: 2px; }
 .empty-block { color: var(--muted); text-align: center; padding: 26px 10px; font-size: 11px; }
 
@@ -145,7 +151,8 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .segmented { display: flex; background: #f0f1f3; border-radius: 7px; padding: 2px; }
 .segmented button { width: 46px; height: 24px; border: 0; border-radius: 5px; background: transparent; font-size: 10px; }
 .segmented button.active { background: white; box-shadow: 0 1px 4px rgba(30,40,55,.14); }
-.primary-button { border: 0; background: var(--blue); color: white; padding: 9px 14px; border-radius: 9px; font-size: 11px; }
+.primary-button { border: 0; background: var(--blue); color: white; padding: 9px 14px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; }
+.primary-button .app-icon, .outline-button .app-icon { width: 14px; height: 14px; }
 .calendar-body { flex: 1; min-height: 0; overflow: auto; }
 .week-grid { min-width: 690px; height: 100%; display: grid; grid-template-columns: repeat(7, 1fr); }
 .day-column { min-width: 0; border-right: 1px solid var(--border); background: #fff; }
@@ -161,9 +168,11 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .calendar-task.range { background: var(--green-soft); border-left-color: var(--green); }
 .calendar-task.completed { opacity: .55; text-decoration: line-through; }
 .calendar-task .task-check { left: 7px; top: 9px; width: 12px; height: 12px; border-radius: 3px; font-size: 8px; }
-.calendar-task strong { display: block; line-height: 1.35; font-weight: 600; }
-.calendar-task small { display: block; margin-top: 3px; color: var(--blue); font-size: 8px; }
-.day-add { width: 100%; border: 0; background: transparent; padding: 5px; text-align: left; color: #a1a9b4; font-size: 10px; }
+.calendar-task .task-check .app-icon { width: 8px; height: 8px; }
+.calendar-task strong { display: block; line-height: 1.35; font-size: 11px; font-weight: 600; }
+.calendar-task small { display: block; margin-top: 3px; color: var(--blue); font-size: 9px; }
+.day-add { width: 100%; border: 0; background: transparent; padding: 5px; display: flex; align-items: center; gap: 4px; text-align: left; color: #939dac; font-size: 10px; }
+.day-add .app-icon { width: 12px; height: 12px; }
 .day-tasks.drag-over { background: #f0f6ff; outline: 2px dashed #9cbafa; outline-offset: -5px; }
 .month-grid { min-width: 690px; min-height: 100%; display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: 30px repeat(6, minmax(94px, 1fr)); }
 .month-weekday { display: grid; place-items: center; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 10px; }
@@ -173,7 +182,7 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .month-day.today { background: #f5f8ff; }
 .month-number { width: 23px; height: 23px; display: grid; place-items: center; border-radius: 50%; font-size: 10px; }
 .month-day.today .month-number { background: var(--blue); color: white; }
-.month-task { margin-top: 3px; padding: 3px 5px; border-radius: 4px; background: var(--blue-soft); color: var(--blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 8px; }
+.month-task { margin-top: 3px; padding: 3px 5px; border-radius: 4px; background: var(--blue-soft); color: var(--blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9px; }
 
 .right-rail { min-height: 0; overflow-y: auto; padding-right: 1px; }
 .rail-card { margin-bottom: 10px; overflow: hidden; }
@@ -184,8 +193,7 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .attendance-block.warning .attendance-icon { color: var(--orange); background: color-mix(in srgb, var(--orange) 12%, transparent); }
 .attendance-block.warning .attendance-text small { color: #d3832f; }
 .attendance-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--blue-soft); color: var(--blue); display: grid; place-items: center; font-size: 18px; }
-.app-icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.app-icon .filled { fill: currentColor; stroke: none; }
+.app-icon { width: 18px; height: 18px; display: block; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .attendance-icon .app-icon { width: 21px; height: 21px; }
 .rail-title .app-icon { width: 13px; height: 13px; display: block; }
 .attendance-text { flex: 1; min-width: 0; }
@@ -196,10 +204,11 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .habit-row { padding: 10px 0; border-bottom: 1px solid #f0f1f3; }
 .habit-row:last-child { border-bottom: 0; }
 .habit-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.habit-line b { font-size: 10px; }
-.habit-line small { color: var(--muted); font-size: 8px; }
+.habit-line b { font-size: 11px; }
+.habit-line small { color: var(--muted); font-size: 9px; }
 .habit-buttons { display: flex; gap: 6px; }
-.habit-buttons button { border: 0; height: 27px; border-radius: 8px; padding: 0 9px; color: var(--blue); background: var(--blue-soft); font-size: 10px; }
+.habit-buttons button { border: 0; height: 27px; border-radius: 8px; padding: 0 9px; display: flex; align-items: center; gap: 3px; color: var(--blue); background: var(--blue-soft); font-size: 10px; }
+.habit-buttons .app-icon { width: 12px; height: 12px; stroke-width: 2; }
 .habit-buttons .undo { background: transparent; color: #a3aab5; padding: 0 3px; }
 .deadline-section { padding: 8px 12px 12px; }
 .deadline-subtitle { display: flex; justify-content: space-between; margin: 6px 0 8px; font-size: 9px; font-weight: 650; }
@@ -227,7 +236,8 @@ body.drawer-open .inbox-drawer { right: 0; }
 .modal-card { width: min(620px, calc(100vw - 60px)); max-height: calc(100vh - 70px); overflow-y: auto; background: white; border: 1px solid rgba(255,255,255,.7); border-radius: 16px; box-shadow: var(--shadow); }
 .modal-header { height: 60px; padding: 0 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .modal-header h2 { margin: 0; font-size: 17px; }
-.modal-close { width: 30px; height: 30px; border: 0; border-radius: 8px; background: #f2f4f7; font-size: 18px; }
+.modal-close { width: 30px; height: 30px; border: 0; border-radius: 8px; background: #f2f4f7; display: grid; place-items: center; }
+.modal-close .app-icon { width: 15px; height: 15px; }
 .modal-body { padding: 18px 20px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .field { display: flex; flex-direction: column; gap: 6px; }
@@ -269,6 +279,7 @@ body.drawer-open .inbox-drawer { right: 0; }
 .day-detail-task.completed .day-detail-copy b { text-decoration: line-through; }
 .day-detail-check { width: 17px; height: 17px; display: grid; place-items: center; padding: 0; border: 1.5px solid #aeb7c4; border-radius: 4px; background: var(--surface); color: white; font-size: 10px; }
 .day-detail-check.checked { border-color: var(--blue); background: var(--blue); }
+.day-detail-check .app-icon { width: 12px; height: 12px; stroke-width: 2.6; }
 .day-detail-copy { min-width: 0; padding: 8px 0; border: 0; background: transparent; text-align: left; }
 .day-detail-copy b, .day-detail-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .day-detail-copy b { font-size: 11px; }
@@ -276,7 +287,8 @@ body.drawer-open .inbox-drawer { right: 0; }
 .day-detail-task > span { padding: 5px 8px; border-radius: 6px; background: var(--blue-soft); color: var(--blue); font-size: 8px; }
 .day-detail-more { border: 0; background: transparent; color: var(--muted); letter-spacing: 1px; }
 .day-detail-deadline { width: 100%; min-height: 44px; display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 9px; padding: 0; border: 0; border-bottom: 1px solid var(--border); background: transparent; text-align: left; }
-.day-detail-deadline i { color: var(--orange); font-style: normal; text-align: center; }
+.day-detail-deadline i { color: var(--orange); font-style: normal; display: grid; place-items: center; }
+.day-detail-deadline i .app-icon { width: 15px; height: 15px; }
 .day-detail-deadline b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
 .day-detail-deadline span { color: var(--muted); font-size: 8px; }
 .day-detail-empty { min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; border-radius: 12px; background: var(--raised); }
@@ -310,6 +322,7 @@ body.drawer-open .inbox-drawer { right: 0; }
 .mode-option b { font-size: 10px; }
 .mode-option small { margin-top: 3px; color: var(--muted); font-size: 8px; }
 .mode-option > i { position: absolute; right: 10px; top: 10px; width: 18px; height: 18px; display: none; place-items: center; border-radius: 50%; background: var(--blue); color: white; font-size: 10px; font-style: normal; }
+.mode-option > i .app-icon { width: 11px; height: 11px; stroke-width: 2.5; }
 .mode-option:hover { border-color: color-mix(in srgb, var(--blue) 45%, var(--border)); transform: translateY(-1px); }
 .mode-option.active { border-color: var(--blue); box-shadow: 0 0 0 2px color-mix(in srgb, var(--blue) 14%, transparent); }
 .mode-option.active > i { display: grid; }
@@ -354,8 +367,9 @@ body.drawer-open .inbox-drawer { right: 0; }
 .records-toolbar, .records-section-intro { min-height: 46px; margin-bottom: 17px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .records-date-nav { display: flex; align-items: center; gap: 7px; }
 .records-date-nav button {
-  height: 31px; min-width: 31px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-size: 15px;
+  height: 31px; min-width: 31px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); display: inline-grid; place-items: center; font-size: 15px;
 }
+.records-date-nav .app-icon { width: 14px; height: 14px; }
 .records-date-nav button:nth-child(2) { font-size: 10px; }
 .records-date-nav h3 { margin: 0 0 0 7px; font-size: 15px; }
 .records-period button { width: 50px; height: 28px; }
@@ -402,7 +416,8 @@ body.drawer-open .inbox-drawer { right: 0; }
 .record-progress i { display: block; height: 100%; border-radius: inherit; background: var(--green); }
 .record-habit-card p { min-height: 15px; margin: 9px 0 15px; }
 .record-habit-actions { display: flex; gap: 8px; }
-.record-habit-actions button { flex: 1; border: 1px solid var(--border); border-radius: 8px; background: #f7f8fa; padding: 8px; font-size: 10px; }
+.record-habit-actions button { flex: 1; border: 1px solid var(--border); border-radius: 8px; background: #f7f8fa; padding: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 10px; }
+.record-habit-actions .app-icon { width: 13px; height: 13px; }
 .record-habit-actions button:last-child { border-color: #cfeee1; background: var(--green-soft); color: #398c6d; }
 .attendance-current { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; padding: 18px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface); }
 .attendance-current-icon { width: 49px; height: 49px; display: grid; place-items: center; border-radius: 14px; color: var(--blue); background: var(--blue-soft); }
@@ -535,9 +550,10 @@ body.drawer-open .inbox-drawer { right: 0; }
   box-shadow: 0 14px 38px rgba(30,40,56,.18); backdrop-filter: blur(18px);
 }
 .task-context-menu.open { display: block; }
-.task-context-menu button { width: 100%; height: 31px; display: flex; align-items: center; gap: 9px; padding: 0 9px; border: 0; border-radius: 7px; background: transparent; text-align: left; font-size: 10px; }
+.task-context-menu button { width: 100%; height: 32px; display: flex; align-items: center; gap: 10px; padding: 0 9px; border: 0; border-radius: 7px; background: transparent; text-align: left; font-size: 10px; }
 .task-context-menu button:hover { background: var(--blue-soft); color: var(--blue); }
-.task-context-menu button span { width: 15px; color: var(--muted); text-align: center; }
+.task-context-menu button .app-icon { width: 14px; height: 14px; flex: 0 0 auto; color: var(--muted); }
+.task-context-menu button span { flex: 1; width: auto; color: inherit; text-align: left; }
 .task-context-menu button.danger { color: #cf555b; }
 .task-context-menu button.danger:hover { background: #fff0f1; color: #c7444b; }
 .task-context-menu > i { display: block; height: 1px; margin: 5px 4px; background: var(--border); }

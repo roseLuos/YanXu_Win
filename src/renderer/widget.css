@@ -13,7 +13,7 @@
   --border: rgba(45, 63, 88, .13);
   --divider: rgba(45, 63, 88, .09);
   --shadow: 0 14px 38px rgba(46, 73, 113, .18);
-  font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  font-family: "Segoe UI Variable Text", "Segoe UI Variable", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
   color: var(--text);
   font-synthesis: none;
 }
@@ -35,7 +35,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; user-select: none; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; user-select: none; -webkit-font-smoothing: auto; text-rendering: auto; font-kerning: normal; }
 button, input { color: inherit; font: inherit; }
 button { cursor: pointer; }
 .widget-drag { -webkit-app-region: drag; }
@@ -56,27 +56,29 @@ button { cursor: pointer; }
 .widget-brand img { width: 27px; height: 27px; border-radius: 7px; }
 .widget-brand span, .header-metric span { display: flex; flex-direction: column; gap: 2px; }
 .widget-brand b { font-size: 13px; font-weight: 650; }
-.widget-brand small, .header-metric small { color: var(--secondary); font-size: 8px; }
+.widget-brand small, .header-metric small { color: var(--secondary); font-size: 9px; }
 .widget-header-spacer { flex: 1; }
 .header-metric { height: 30px; display: flex; align-items: center; gap: 6px; padding: 0 9px; border: 1px solid rgba(45,63,88,.06); border-radius: 99px; background: var(--surface); }
 .header-metric > i { width: 6px; height: 6px; border-radius: 50%; }
 .header-metric > i.green { background: var(--success); }
 .header-metric > i.blue { background: var(--accent); }
-.header-metric b { font-size: 10px; line-height: 1; }
-.circle-button { width: 27px; height: 27px; flex: 0 0 auto; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: var(--surface-strong); color: var(--secondary); font-size: 12px; font-weight: 700; }
+.header-metric b { font-size: 11px; line-height: 1; }
+.circle-button { width: 27px; height: 27px; flex: 0 0 auto; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: var(--surface-strong); color: var(--secondary); }
+.circle-button .widget-icon { width: 13px; height: 13px; }
 .circle-button:hover { color: var(--text); background: rgba(37,63,99,.12); }
 .circle-button.active { color: var(--accent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 50%, transparent); }
-.circle-button.close { color: var(--danger); background: rgba(237, 116, 122, .10); font-size: 18px; font-weight: 500; }
+.circle-button.close { color: var(--danger); background: rgba(237, 116, 122, .10); }
 
 .quick-task {
   height: 40px; flex: 0 0 40px; display: flex; align-items: center; gap: 6px; margin: 0; padding: 5px 12px;
   border-bottom: 1px solid var(--divider);
 }
 .quick-task::before { content: ''; position: absolute; }
-.quick-task > span { width: 16px; margin-left: 5px; color: var(--accent); font-size: 14px; }
+.quick-task > span { width: 16px; height: 16px; display: grid; place-items: center; margin-left: 5px; color: var(--accent); }
+.quick-task > span .widget-icon { width: 14px; height: 14px; stroke-width: 2; }
 .quick-task input {
   width: 100%; height: 29px; padding: 0 8px 0 0; border: 0; outline: 0; background: transparent;
-  color: var(--text); font-size: 10px; user-select: text;
+  color: var(--text); font-size: 11px; user-select: text;
 }
 .quick-task:focus-within { background: var(--surface); }
 .quick-task input::placeholder { color: var(--muted); }
@@ -88,26 +90,27 @@ button { cursor: pointer; }
 }
 .widget-day.today { border-color: color-mix(in srgb, var(--accent) 38%, transparent); background: var(--accent-soft); }
 .day-heading { display: flex; flex-direction: column; align-items: center; gap: 2px; border: 0; background: transparent; }
-.day-heading small { color: var(--secondary); font-size: 8px; font-weight: 600; }
+.day-heading small { color: var(--secondary); font-size: 9px; font-weight: 600; }
 .widget-day.today .day-heading small { color: var(--accent); }
 .day-heading b { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; font-size: 13px; font-weight: 650; }
 .widget-day.today .day-heading b { color: white; background: var(--accent); }
 .day-tasks { min-height: 0; overflow: hidden auto; scrollbar-width: none; }
 .day-tasks::-webkit-scrollbar { display: none; }
 .widget-task {
-  width: 100%; display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 4px; margin-bottom: 5px; padding: 5px;
+  width: 100%; display: grid; grid-template-columns: 13px minmax(0, 1fr); gap: 5px; margin-bottom: 5px; padding: 5px;
   border: 0; border-radius: 6px; background: color-mix(in srgb, var(--task-color) 9%, white); text-align: left;
 }
 .widget-task:hover { background: color-mix(in srgb, var(--task-color) 17%, transparent); }
-.widget-task .task-check { width: 10px; height: 10px; display: grid; place-items: center; margin-top: 1px; border: 1.5px solid var(--task-color); border-radius: 50%; color: white; font-size: 7px; line-height: 1; }
-.widget-task.completed .task-check { border-color: var(--success); background: var(--success); }
+.widget-task .task-check { width: 12px; height: 12px; display: grid; place-items: center; margin-top: 1px; border: 1.4px solid color-mix(in srgb, var(--task-color) 78%, #667085); border-radius: 3px; background: rgba(255,255,255,.82); color: white; line-height: 1; }
+.widget-task .task-check .widget-icon { width: 9px; height: 9px; stroke-width: 2.7; }
+.widget-task.completed .task-check { border-color: var(--accent); background: var(--accent); }
 .widget-task span { min-width: 0; }
-.widget-task strong { display: -webkit-box; overflow: hidden; color: rgba(23,31,46,.88); font-size: 8px; font-weight: 600; line-height: 1.35; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.widget-task small { display: block; margin-top: 2px; color: color-mix(in srgb, var(--task-color) 78%, #445); font-size: 7px; }
+.widget-task strong { display: -webkit-box; overflow: hidden; color: rgba(23,31,46,.92); font-size: 9px; font-weight: 600; line-height: 1.38; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.widget-task small { display: block; margin-top: 2px; color: color-mix(in srgb, var(--task-color) 78%, #445); font-size: 8px; }
 .widget-task.completed { opacity: .46; }
 .widget-task.completed strong { text-decoration: line-through; }
-.empty-day { padding-top: 8px; color: var(--muted); font-size: 8px; text-align: center; }
-.more-tasks { color: var(--secondary); font-size: 8px; text-align: center; }
+.empty-day { padding-top: 8px; color: var(--muted); font-size: 9px; text-align: center; }
+.more-tasks { color: var(--secondary); font-size: 9px; text-align: center; }
 
 .widget-toast {
   position: absolute; left: 50%; bottom: 21px; z-index: 5; transform: translate(-50%, 10px); padding: 7px 12px;
@@ -118,7 +121,10 @@ button { cursor: pointer; }
 
 .widget-context-menu { position: fixed; z-index: 9; display: none; width: 150px; padding: 5px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,.98); box-shadow: 0 12px 30px rgba(39,55,78,.18); }
 .widget-context-menu.open { display: block; }
-.widget-context-menu button { width: 100%; height: 29px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; color: var(--text); text-align: left; font-size: 9px; }
+.widget-context-menu button { width: 100%; height: 30px; display: flex; align-items: center; gap: 8px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; color: var(--text); text-align: left; font-size: 9px; }
+.widget-context-menu button .widget-icon { width: 13px; height: 13px; color: var(--secondary); }
 .widget-context-menu button:hover { background: var(--accent-soft); color: var(--accent); }
 .widget-context-menu button.danger { color: var(--danger); }
 .widget-context-menu > i { display: block; height: 1px; margin: 4px; background: var(--divider); }
+
+.widget-icon { width: 16px; height: 16px; display: block; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }

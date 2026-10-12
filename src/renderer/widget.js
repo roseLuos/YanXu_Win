@@ -14,6 +14,25 @@ function escapeHTML(value) {
   return String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 }
 
+function iconSVG(name) {
+  const icons = {
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    check: '<path d="m5 12 4.2 4.2L19 6.5"/>',
+    reset: '<path d="M4 10a8 8 0 1 1 2 7m-2-7V5m0 5h5"/>',
+    lock: '<rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+    unlock: '<rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 7.5-2"/>',
+    close: '<path d="m6 6 12 12M18 6 6 18"/>',
+    arrowRight: '<path d="M5 12h14m-5-5 5 5-5 5"/>',
+    externalLink: '<path d="M14 4h6v6m0-6-9 9M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/>',
+    trash: '<path d="M4 7h16M9 3h6l1 4H8l1-4Zm-3 4 1 14h10l1-14M10 11v6m4-6v6"/>'
+  };
+  return `<svg class="widget-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[name] || icons.plus}</svg>`;
+}
+
+function hydrateStaticIcons() {
+  document.querySelectorAll('[data-icon]').forEach((element) => { element.innerHTML = iconSVG(element.dataset.icon); });
+}
+
 function dateKey(value) {
   const date = new Date(value);
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -95,7 +114,7 @@ function taskTint(task) {
 function taskMarkup(task, day) {
   const completed = taskComplete(task, day);
   return `<button class="widget-task ${completed ? 'completed' : ''}" data-task-id="${task.id}" data-task-date="${dateKey(day)}" data-context-task="${task.id}" style="--task-color:${taskTint(task)}">
-    <i class="task-check">${completed ? '✓' : ''}</i>
+    <i class="task-check">${completed ? iconSVG('check') : ''}</i>
     <span><strong>${escapeHTML(task.title)}</strong>${task.scheduleKind === 'fixed' ? `<small>${formatTime(task.start)}</small>` : ''}</span>
   </button>`;
 }
@@ -119,7 +138,7 @@ function render() {
   $('#task-progress').textContent = `${completed}/${todayTasks.length}`;
   $('#quick-input').placeholder = `新增任务，如：${mode.quickPlaceholder.replace(/^试试：/, '')}`;
   $('#lock-toggle').classList.toggle('active', settings.desktopWidgetLocked);
-  $('#lock-toggle').textContent = settings.desktopWidgetLocked ? '●' : '⌖';
+  $('#lock-toggle').innerHTML = iconSVG(settings.desktopWidgetLocked ? 'lock' : 'unlock');
   $('#lock-toggle').title = settings.desktopWidgetLocked ? '解除位置锁定' : '锁定卡片位置';
 
   $('#week-grid').innerHTML = days.map((day) => {
@@ -206,7 +225,7 @@ document.addEventListener('contextmenu', (event) => {
   if (!task) return;
   const completed = taskComplete(task, element.dataset.taskDate);
   const menu = $('#widget-context-menu');
-  menu.innerHTML = `${task.scheduleKind !== 'inbox' && !completed ? `<button data-widget-context="postpone" data-id="${task.id}">→　延后一天</button>` : ''}<button data-widget-context="open">↗　在主程序中打开</button><i></i><button class="danger" data-widget-context="delete" data-id="${task.id}">⌫　删除任务</button>`;
+  menu.innerHTML = `${task.scheduleKind !== 'inbox' && !completed ? `<button data-widget-context="postpone" data-id="${task.id}">${iconSVG('arrowRight')}<span>延后一天</span></button>` : ''}<button data-widget-context="open">${iconSVG('externalLink')}<span>在主程序中打开</span></button><i></i><button class="danger" data-widget-context="delete" data-id="${task.id}">${iconSVG('trash')}<span>删除任务</span></button>`;
   menu.classList.add('open');
   menu.style.left = `${Math.min(event.clientX, window.innerWidth - 158)}px`;
   menu.style.top = `${Math.min(event.clientY, window.innerHeight - menu.offsetHeight - 8)}px`;
@@ -241,6 +260,7 @@ $('#lock-toggle').addEventListener('click', async () => {
 window.yanxu.onStateChanged((next) => { data = next; render(); });
 
 async function init() {
+  hydrateStaticIcons();
   data = await window.yanxu.loadState();
   render();
   setInterval(render, 60000);
