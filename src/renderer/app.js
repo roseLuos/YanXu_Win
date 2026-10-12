@@ -405,7 +405,16 @@ function activeDeadlines() {
 
 function deadlineItem(item) {
   const days = daysFromToday(item.dueDate);
-  const display = days >= 0 ? `${days}<small>天</small>` : `+${Math.abs(days)}<small>天</small>`;
+  let display;
+  if (item.kind === 'milestone') {
+    display = `<small>已经</small>${Math.max(0, -days)}<small>天</small>`;
+  } else if (days > 0) {
+    display = `<small>还有</small>${days}<small>天</small>`;
+  } else if (days === 0) {
+    display = '今天';
+  } else {
+    display = `<small>已过</small>${Math.abs(days)}<small>天</small>`;
+  }
   return `<div class="deadline-item" data-action="edit-deadline" data-id="${item.id}">
     <div class="deadline-copy"><b>${escapeHTML(item.title)}</b><small>${item.kind === 'milestone' ? '正向里程碑 · 起始于' : 'DDL ·'} ${formatShortDate(item.dueDate)}</small></div>
     <div class="deadline-days">${display}</div>
