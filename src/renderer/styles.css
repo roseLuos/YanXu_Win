@@ -221,6 +221,8 @@ button { cursor: pointer; transition: background-color .16s ease, border-color .
 .deadline-section { padding: 8px 12px 12px; }
 .deadline-subtitle { display: flex; justify-content: space-between; margin: 6px 0 8px; font-size: var(--type-meta); font-weight: 650; }
 .deadline-subtitle span { color: var(--muted); font-weight: 400; }
+.deadline-group + .deadline-group { margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f1f3; }
+.deadline-group .empty-block { padding: 14px 8px; }
 .deadline-item { display: flex; align-items: center; gap: 8px; padding: 9px 10px; margin-bottom: 6px; border: 1px solid var(--border); border-radius: 9px; background: #fafbfc; }
 .deadline-copy { min-width: 0; flex: 1; }
 .deadline-copy b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--type-body); }
@@ -526,6 +528,7 @@ body.drawer-open .inbox-drawer { right: 0; }
 :root[data-theme="dark"] .field input,
 :root[data-theme="dark"] .field textarea,
 :root[data-theme="dark"] .field select { background: #282c33; }
+:root[data-theme="dark"] .deadline-group + .deadline-group { border-top-color: #353a42; }
 :root[data-theme="dark"] .task-row.overdue { background: #3a2e22; }
 :root[data-theme="dark"] .task-row:hover { background: #303640; }
 :root[data-theme="dark"] .calendar-task.fixed { background: var(--blue-soft); }

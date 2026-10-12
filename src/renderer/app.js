@@ -419,7 +419,8 @@ function renderRightRail() {
   const active = data.attendanceSessions.find((item) => !item.leftAt);
   const activeDuration = active ? new Date() - new Date(active.arrivedAt) : 0;
   const activeTooLong = activeDuration > 8 * 60 * 60 * 1000;
-  const personal = activeDeadlines().slice(0, 6);
+  const milestones = activeDeadlines().filter((item) => item.kind === 'milestone').slice(0, 3);
+  const deadlines = activeDeadlines().filter((item) => item.kind === 'deadline').slice(0, 3);
   $('#right-rail').innerHTML = `
     <section class="rail-card">
       <div class="rail-title"><span>${iconSVG(mode.icon)}</span>${mode.attendance}</div>
@@ -437,10 +438,16 @@ function renderRightRail() {
       }).join('') : '<div class="empty-block">添加一个每周习惯目标</div>'}</div>
     </section>
     <section class="rail-card">
-      <div class="rail-title"><span>${iconSVG('flag')}</span>里程碑 <button class="text-button" data-action="manage-deadlines">管理</button></div>
+      <div class="rail-title"><span>${iconSVG('flag')}</span>里程碑与 DDL <button class="text-button" data-action="manage-deadlines">管理</button></div>
       <div class="deadline-section">
-        <div class="deadline-subtitle">我的里程碑 <span>${personal.length}</span></div>
-        ${personal.length ? personal.map((item) => deadlineItem(item)).join('') : '<div class="empty-block">还没有里程碑</div>'}
+        <div class="deadline-group">
+          <div class="deadline-subtitle">正向里程碑 <span>${milestones.length}</span></div>
+          ${milestones.length ? milestones.map((item) => deadlineItem(item)).join('') : '<div class="empty-block">还没有正向里程碑</div>'}
+        </div>
+        <div class="deadline-group">
+          <div class="deadline-subtitle">我的 DDL <span>${deadlines.length}</span></div>
+          ${deadlines.length ? deadlines.map((item) => deadlineItem(item)).join('') : '<div class="empty-block">还没有 DDL</div>'}
+        </div>
       </div>
     </section>`;
 }
