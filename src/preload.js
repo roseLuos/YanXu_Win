@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('yanxu', {
   exportBackup: () => ipcRenderer.invoke('settings:export-backup'),
   importBackup: () => ipcRenderer.invoke('settings:import-backup'),
   createExampleData: () => ipcRenderer.invoke('settings:example-data'),
+  clearAllData: () => ipcRenderer.invoke('settings:clear-data'),
   windowAction: (action) => ipcRenderer.invoke('window:action', action),
   widgetAction: (action) => ipcRenderer.invoke('widget:action', action),
   onStateChanged: (callback) => {

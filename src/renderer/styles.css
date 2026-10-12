@@ -347,6 +347,7 @@ body.drawer-open .inbox-drawer { right: 0; }
 .switch input:checked + i { background: var(--blue); }
 .switch input:checked + i::after { transform: translateX(16px); }
 .settings-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.settings-buttons .danger-button { margin-right: 0; }
 .settings-path { margin-top: 9px; padding: 8px 10px; border-radius: 7px; background: #f0f2f5; color: var(--muted); font-family: Consolas, monospace; font-size: 8px; user-select: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .settings-about { display: flex; align-items: center; gap: 12px; }
 .settings-about img { width: 42px; height: 42px; border-radius: 10px; }

@@ -34,6 +34,13 @@ function emptyData() {
   };
 }
 
+function blankData(settings = null) {
+  const blank = emptyData();
+  blank.examplesInitialized = true;
+  if (settings) blank.settings = { ...blank.settings, ...settings };
+  return blank;
+}
+
 function uid() {
   return globalThis.crypto.randomUUID();
 }
@@ -155,13 +162,13 @@ function loadData() {
     let shouldPersist = source.version !== DATA_VERSION;
     if (source.examplesInitialized !== true) {
       const hasUserContent = ['tasks', 'deadlines', 'habits', 'habitLogs', 'attendanceSessions'].some((key) => Array.isArray(source[key]) && source[key].length > 0);
-      if (!hasUserContent) cachedData = demoData();
+      if (!hasUserContent) cachedData = blankData(cachedData.settings);
       else cachedData.examplesInitialized = true;
       shouldPersist = true;
     }
     if (shouldPersist) persistData(cachedData);
   } catch {
-    cachedData = process.env.YANXU_EMPTY_DATA === '1' ? { ...emptyData(), examplesInitialized: true } : demoData();
+    cachedData = process.env.YANXU_DEMO_DATA === '1' && process.env.YANXU_EMPTY_DATA !== '1' ? demoData() : blankData();
     persistData(cachedData);
   }
   return cachedData;
@@ -415,6 +422,12 @@ ipcMain.handle('settings:example-data', async () => {
   broadcastStateChanged(examples);
   return { ok: true, data: examples };
 });
+ipcMain.handle('settings:clear-data', async () => {
+  const cleared = blankData(loadData().settings);
+  await persistData(cleared);
+  broadcastStateChanged(cleared);
+  return { ok: true, data: cleared };
+});
 ipcMain.handle('window:action', (_event, action) => {
   if (!mainWindow) return;
   if (action === 'minimize') mainWindow.minimize();
@@ -434,4 +447,4 @@ ipcMain.handle('widget:action', async (_event, action) => {
   }
   return { ok: true };
 });
-module.exports = { emptyData, demoData, normalizeData };
+module.exports = { emptyData, blankData, demoData, normalizeData };

@@ -1,6 +1,6 @@
 {
   "name": "yanxu-windows",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "研序 YanXu - 本地优先的 Windows 计划与时间管理工作台",
   "main": "src/main.js",
   "author": {
@@ -40,7 +40,7 @@
   },
   "scripts": {
     "start": "electron .",
-    "demo": "cross-env YANXU_DATA_PATH=artifacts/demo-data-v3.json electron .",
+    "demo": "cross-env YANXU_DATA_PATH=artifacts/demo-data-v3.json YANXU_DEMO_DATA=1 electron .",
     "lint": "node --check src/main.js && node --check src/preload.js && node --check src/renderer/app.js && node --check src/renderer/widget.js && node --check src/shared/data-migrations.js && node --check src/shared/quick-parser.js && node --check src/shared/workspace-modes.js",
     "test": "node --test tests/*.test.js",
     "check": "npm run lint && npm test",

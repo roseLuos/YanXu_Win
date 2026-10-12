@@ -660,7 +660,7 @@ async function openSettings() {
       </section>
       <section class="settings-section">
         <div class="settings-section-head"><div><h3>本地数据</h3><p>研序不需要账号，任务、打卡、习惯和 DDL 都保存在本机。</p></div></div>
-        <div class="settings-buttons"><button class="outline-button" data-action="open-data-folder">打开数据位置</button><button class="outline-button" data-action="export-backup">导出备份</button><button class="outline-button" data-action="import-backup">导入备份</button><button class="danger-button" data-action="restore-examples">恢复示例工作区</button></div>
+        <div class="settings-buttons"><button class="outline-button" data-action="open-data-folder">打开数据位置</button><button class="outline-button" data-action="export-backup">导出备份</button><button class="outline-button" data-action="import-backup">导入备份</button><button class="danger-button" data-action="clear-all-data">清空全部数据</button><button class="outline-button" data-action="restore-examples">载入示例工作区</button></div>
         <div class="settings-path" title="${escapeHTML(system.dataPath)}">${escapeHTML(system.dataPath)}</div>
       </section>
       <section class="settings-section"><div class="settings-about"><img src="../../Resources/AppIcon-source.png" alt=""><div><b>研序 Windows</b><small id="settings-mode-description">版本 ${escapeHTML(system.appVersion)} · 本地优先的${currentMode().short}工作台</small></div></div></section>
@@ -1189,10 +1189,24 @@ document.addEventListener('click', async (event) => {
       data = result.data; applyTheme(); calendarView = normalizedSettings().defaultCalendarView; closeModal(); renderAll(); showToast('数据备份已导入');
     } else if (!result.canceled) showToast(result.error || '导入失败');
   }
+  if (action === 'clear-all-data') {
+    if (window.confirm('这会清空全部任务、打卡、习惯、里程碑和 DDL，且无法撤销。建议先导出备份。是否继续？')) {
+      const result = await window.yanxu.clearAllData();
+      if (result.ok) {
+        data = result.data;
+        applyTheme();
+        calendarAnchor = startOfDay(new Date());
+        calendarView = normalizedSettings().defaultCalendarView;
+        closeModal();
+        renderAll();
+        showToast('全部本地数据已清空');
+      }
+    }
+  }
   if (action === 'restore-examples') {
-    if (window.confirm('恢复示例工作区会替换当前所有任务、打卡、习惯和 DDL。是否继续？')) {
+    if (window.confirm('载入示例工作区会替换当前所有任务、打卡、习惯、里程碑和 DDL。是否继续？')) {
       const result = await window.yanxu.createExampleData();
-      if (result.ok) { data = result.data; applyTheme(); calendarAnchor = startOfDay(new Date()); calendarView = normalizedSettings().defaultCalendarView; closeModal(); renderAll(); showToast('已恢复示例工作区'); }
+      if (result.ok) { data = result.data; applyTheme(); calendarAnchor = startOfDay(new Date()); calendarView = normalizedSettings().defaultCalendarView; closeModal(); renderAll(); showToast('已载入示例工作区'); }
     }
   }
 });
