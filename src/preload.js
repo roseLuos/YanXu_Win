@@ -5,11 +5,14 @@ contextBridge.exposeInMainWorld('yanxu', {
   saveState: (data) => ipcRenderer.invoke('data:save', data),
   getSystemSettings: () => ipcRenderer.invoke('settings:system'),
   setLaunchAtLogin: (enabled) => ipcRenderer.invoke('settings:launch-at-login', enabled),
+  setDesktopWidgetEnabled: (enabled) => ipcRenderer.invoke('settings:desktop-widget', enabled),
+  setDesktopWidgetLocked: (locked) => ipcRenderer.invoke('settings:desktop-widget-locked', locked),
   openDataFolder: () => ipcRenderer.invoke('settings:open-data-folder'),
   exportBackup: () => ipcRenderer.invoke('settings:export-backup'),
   importBackup: () => ipcRenderer.invoke('settings:import-backup'),
   createExampleData: () => ipcRenderer.invoke('settings:example-data'),
   windowAction: (action) => ipcRenderer.invoke('window:action', action),
+  widgetAction: (action) => ipcRenderer.invoke('widget:action', action),
   onStateChanged: (callback) => {
     const listener = (_event, value) => callback(value);
     ipcRenderer.on('state:changed', listener);

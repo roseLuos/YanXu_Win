@@ -181,6 +181,10 @@ function normalizedSettings() {
     theme: 'system',
     defaultCalendarView: 'week',
     workspaceMode: 'research',
+    desktopWidgetEnabled: true,
+    desktopWidgetLocked: false,
+    desktopWidgetAppearance: 'dark',
+    desktopWidgetBounds: null,
     ...(data.settings || {})
   };
   data.settings.workspaceMode = normalizeWorkspaceMode(data.settings.workspaceMode);
@@ -495,6 +499,8 @@ async function openSettings() {
       <section class="settings-section">
         <div class="settings-section-head"><div><h3>Windows</h3><p>系统启动与窗口行为。</p></div></div>
         <div class="setting-line"><div class="setting-copy"><b>登录时启动研序</b><small>登录 Windows 后自动打开主工作台</small></div><label class="switch"><input id="setting-login" type="checkbox" ${system.launchAtLogin ? 'checked' : ''}><i></i></label></div>
+        <div class="setting-line"><div class="setting-copy"><b>显示研序桌面卡片</b><small>固定在桌面上，其他应用窗口可以正常遮挡</small></div><label class="switch"><input id="setting-desktop-widget" type="checkbox" ${settings.desktopWidgetEnabled ? 'checked' : ''}><i></i></label></div>
+        <div class="setting-line"><div class="setting-copy"><b>锁定卡片位置</b><small>锁定后不会因拖动顶部区域而移动</small></div><label class="switch"><input id="setting-widget-lock" type="checkbox" ${settings.desktopWidgetLocked ? 'checked' : ''} ${settings.desktopWidgetEnabled ? '' : 'disabled'}><i></i></label></div>
       </section>
       <section class="settings-section">
         <div class="settings-section-head"><div><h3>本地数据</h3><p>研序不需要账号，任务、打卡、习惯和 DDL 都保存在本机。</p></div></div>
@@ -526,6 +532,21 @@ async function openSettings() {
     const result = await window.yanxu.setLaunchAtLogin(event.currentTarget.checked);
     event.currentTarget.checked = result.launchAtLogin;
     showToast(result.launchAtLogin ? '已设置登录时启动' : '已关闭登录时启动');
+  });
+  $('#setting-desktop-widget').addEventListener('change', async (event) => {
+    const result = await window.yanxu.setDesktopWidgetEnabled(event.currentTarget.checked);
+    data.settings.desktopWidgetEnabled = result.enabled;
+    event.currentTarget.checked = result.enabled;
+    $('#setting-widget-lock').disabled = !result.enabled;
+    save();
+    showToast(result.enabled ? '已显示研序桌面卡片' : '已关闭研序桌面卡片');
+  });
+  $('#setting-widget-lock').addEventListener('change', async (event) => {
+    const result = await window.yanxu.setDesktopWidgetLocked(event.currentTarget.checked);
+    data.settings.desktopWidgetLocked = result.locked;
+    event.currentTarget.checked = result.locked;
+    save();
+    showToast(result.locked ? '桌面卡片位置已锁定' : '桌面卡片现在可以拖动');
   });
 }
 

@@ -1,12 +1,15 @@
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, screen } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { normalizeWorkspaceMode } = require('./shared/workspace-modes');
 
 let mainWindow = null;
+let widgetWindow = null;
 let cachedData = null;
 let saveQueue = Promise.resolve();
-const DATA_VERSION = 7;
+let widgetBoundsTimer = null;
+const DATA_VERSION = 8;
+const WIDGET_SIZE = Object.freeze({ width: 930, height: 478 });
 
 function emptyData() {
   return {
@@ -21,7 +24,11 @@ function emptyData() {
     settings: {
       theme: 'system',
       defaultCalendarView: 'week',
-      workspaceMode: 'research'
+      workspaceMode: 'research',
+      desktopWidgetEnabled: true,
+      desktopWidgetLocked: false,
+      desktopWidgetAppearance: 'dark',
+      desktopWidgetBounds: null
     }
   };
 }
@@ -119,7 +126,11 @@ function normalizeData(value) {
     settings: {
       theme: source.settings?.theme || base.settings.theme,
       defaultCalendarView: source.settings?.defaultCalendarView || base.settings.defaultCalendarView,
-      workspaceMode: normalizeWorkspaceMode(source.settings?.workspaceMode)
+      workspaceMode: normalizeWorkspaceMode(source.settings?.workspaceMode),
+      desktopWidgetEnabled: source.settings?.desktopWidgetEnabled !== false,
+      desktopWidgetLocked: source.settings?.desktopWidgetLocked === true,
+      desktopWidgetAppearance: source.settings?.desktopWidgetAppearance === 'light' ? 'light' : 'dark',
+      desktopWidgetBounds: normalizeWidgetBounds(source.settings?.desktopWidgetBounds)
     }
   };
   for (const key of ['tasks', 'deadlines', 'habits', 'habitLogs', 'attendanceSessions', 'ignoredOverdueOccurrenceKeys']) {
@@ -127,6 +138,14 @@ function normalizeData(value) {
   }
   merged.tasks = merged.tasks.map(({ reminderEnabled: _reminder, __notifiedAt: _notified, ...task }) => task);
   return merged;
+}
+
+function normalizeWidgetBounds(value) {
+  if (!value || typeof value !== 'object') return null;
+  const x = Number(value.x);
+  const y = Number(value.y);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return { x: Math.round(x), y: Math.round(y), ...WIDGET_SIZE };
 }
 
 function loadData() {
@@ -170,6 +189,112 @@ function startupExecutable() {
   return process.env.PORTABLE_EXECUTABLE_FILE || process.execPath;
 }
 
+function broadcastStateChanged(value = loadData(), excludedWebContentsId = null) {
+  for (const target of [mainWindow, widgetWindow]) {
+    if (!target || target.isDestroyed() || target.webContents.id === excludedWebContentsId) continue;
+    target.webContents.send('state:changed', value);
+  }
+}
+
+function defaultWidgetBounds() {
+  const area = screen.getPrimaryDisplay().workArea;
+  return {
+    x: Math.round(area.x + (area.width - WIDGET_SIZE.width) / 2),
+    y: Math.round(area.y + 28),
+    ...WIDGET_SIZE
+  };
+}
+
+function visibleWidgetBounds(savedBounds) {
+  const candidate = normalizeWidgetBounds(savedBounds) || defaultWidgetBounds();
+  const displays = screen.getAllDisplays();
+  const visible = displays.some(({ workArea }) => (
+    candidate.x + 120 >= workArea.x && candidate.x <= workArea.x + workArea.width - 120
+      && candidate.y + 60 >= workArea.y && candidate.y <= workArea.y + workArea.height - 60
+  ));
+  return visible ? candidate : defaultWidgetBounds();
+}
+
+function rememberWidgetBounds() {
+  clearTimeout(widgetBoundsTimer);
+  widgetBoundsTimer = setTimeout(() => {
+    if (!widgetWindow || widgetWindow.isDestroyed() || !cachedData) return;
+    cachedData.settings.desktopWidgetBounds = widgetWindow.getBounds();
+    persistData(cachedData);
+  }, 180);
+}
+
+function createWidgetWindow() {
+  if (widgetWindow && !widgetWindow.isDestroyed()) return widgetWindow;
+  const settings = loadData().settings;
+  if (!settings.desktopWidgetEnabled) return null;
+  const bounds = visibleWidgetBounds(settings.desktopWidgetBounds);
+  widgetWindow = new BrowserWindow({
+    ...bounds,
+    show: false,
+    frame: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    skipTaskbar: true,
+    alwaysOnTop: false,
+    hasShadow: false,
+    icon: iconPath(),
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true
+    }
+  });
+  widgetWindow.setMenuBarVisibility(false);
+  widgetWindow.loadFile(path.join(__dirname, 'renderer', 'widget.html'));
+  widgetWindow.once('ready-to-show', () => {
+    if (!widgetWindow || widgetWindow.isDestroyed()) return;
+    if (process.env.YANXU_WIDGET_CAPTURE) {
+      setTimeout(async () => {
+        const target = path.resolve(process.cwd(), process.env.YANXU_WIDGET_CAPTURE);
+        await fs.promises.mkdir(path.dirname(target), { recursive: true });
+        const image = await widgetWindow.webContents.capturePage();
+        await fs.promises.writeFile(target, image.toPNG());
+        app.quit();
+      }, 1000);
+      return;
+    }
+    widgetWindow.showInactive();
+    if (mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible()) mainWindow.focus();
+  });
+  widgetWindow.on('moved', rememberWidgetBounds);
+  widgetWindow.on('closed', () => {
+    clearTimeout(widgetBoundsTimer);
+    widgetWindow = null;
+  });
+  return widgetWindow;
+}
+
+function setWidgetEnabled(enabled) {
+  const state = loadData();
+  state.settings.desktopWidgetEnabled = Boolean(enabled);
+  if (enabled) createWidgetWindow();
+  else if (widgetWindow && !widgetWindow.isDestroyed()) widgetWindow.destroy();
+  return persistData(state).then(() => {
+    broadcastStateChanged(state);
+    return { ok: true, enabled: state.settings.desktopWidgetEnabled };
+  });
+}
+
+function showMainWindow() {
+  if (!mainWindow || mainWindow.isDestroyed()) createMainWindow();
+  else {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+  }
+}
+
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1500,
@@ -211,10 +336,14 @@ function createMainWindow() {
 app.whenReady().then(() => {
   app.setAppUserModelId('com.yanxu.windows');
   loadData();
-  createMainWindow();
+  if (process.env.YANXU_WIDGET_CAPTURE) createWidgetWindow();
+  else {
+    createMainWindow();
+    createWidgetWindow();
+  }
 
   app.on('activate', () => {
-    if (!mainWindow) createMainWindow();
+    showMainWindow();
   });
 });
 
@@ -225,6 +354,7 @@ app.on('window-all-closed', () => {
 ipcMain.handle('data:load', () => loadData());
 ipcMain.handle('data:save', async (_event, data) => {
   await persistData(data);
+  broadcastStateChanged(cachedData, _event.sender.id);
   return { ok: true };
 });
 ipcMain.handle('settings:system', () => ({
@@ -236,6 +366,14 @@ ipcMain.handle('settings:launch-at-login', (_event, enabled) => {
   const executable = startupExecutable();
   app.setLoginItemSettings({ openAtLogin: Boolean(enabled), path: executable });
   return { ok: true, launchAtLogin: app.getLoginItemSettings({ path: executable }).openAtLogin };
+});
+ipcMain.handle('settings:desktop-widget', (_event, enabled) => setWidgetEnabled(enabled));
+ipcMain.handle('settings:desktop-widget-locked', async (_event, locked) => {
+  const state = loadData();
+  state.settings.desktopWidgetLocked = Boolean(locked);
+  await persistData(state);
+  broadcastStateChanged(state);
+  return { ok: true, locked: state.settings.desktopWidgetLocked };
 });
 ipcMain.handle('settings:open-data-folder', () => {
   const file = dataFile();
@@ -266,7 +404,7 @@ ipcMain.handle('settings:import-backup', async () => {
     const imported = normalizeData(JSON.parse(await fs.promises.readFile(result.filePaths[0], 'utf8')));
     imported.examplesInitialized = true;
     await persistData(imported);
-    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('state:changed', imported);
+    broadcastStateChanged(imported);
     return { ok: true, data: imported };
   } catch (error) {
     return { ok: false, error: `无法导入备份：${error.message}` };
@@ -276,7 +414,7 @@ ipcMain.handle('settings:example-data', async () => {
   const examples = demoData();
   examples.settings = { ...loadData().settings };
   await persistData(examples);
-  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('state:changed', examples);
+  broadcastStateChanged(examples);
   return { ok: true, data: examples };
 });
 ipcMain.handle('window:action', (_event, action) => {
@@ -284,5 +422,18 @@ ipcMain.handle('window:action', (_event, action) => {
   if (action === 'minimize') mainWindow.minimize();
   if (action === 'maximize') mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
   if (action === 'close') mainWindow.close();
+});
+ipcMain.handle('widget:action', async (_event, action) => {
+  if (action === 'open-main') showMainWindow();
+  if (action === 'close') await setWidgetEnabled(false);
+  if (action === 'reset-position' && widgetWindow && !widgetWindow.isDestroyed()) {
+    const bounds = defaultWidgetBounds();
+    widgetWindow.setBounds(bounds);
+    const state = loadData();
+    state.settings.desktopWidgetBounds = bounds;
+    await persistData(state);
+    broadcastStateChanged(state);
+  }
+  return { ok: true };
 });
 module.exports = { emptyData, demoData, normalizeData };

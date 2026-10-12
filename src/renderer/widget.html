@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>研序桌面卡片</title>
+  <link rel="stylesheet" href="widget.css">
+</head>
+<body>
+  <main class="widget-shell" id="widget-shell">
+    <header class="widget-header widget-drag">
+      <button class="widget-brand no-drag" id="open-main" title="打开研序">
+        <img src="../../Resources/AppIcon-source.png" alt="研序">
+        <span><b>本周计划</b><small id="week-range"></small></span>
+      </button>
+      <div class="widget-header-spacer"></div>
+      <div class="header-metric"><i class="green"></i><span><small id="today-duration-label">今日科研</small><b id="today-duration">0 分钟</b></span></div>
+      <div class="header-metric"><i class="blue"></i><span><small>任务完成</small><b id="task-progress">0/0</b></span></div>
+      <button class="circle-button no-drag" id="appearance-toggle" title="切换明暗外观" aria-label="切换明暗外观">☀</button>
+      <button class="circle-button no-drag" id="lock-toggle" title="锁定卡片位置" aria-label="锁定卡片位置">⌖</button>
+      <button class="circle-button close no-drag" id="widget-close" title="关闭桌面卡片" aria-label="关闭桌面卡片">×</button>
+    </header>
+
+    <section class="quick-task no-drag">
+      <span>＋</span>
+      <input id="quick-input" maxlength="160" placeholder="新增任务，如：明天下午 2 点讨论实验" aria-label="快速新增任务">
+    </section>
+
+    <section class="week-grid" id="week-grid"></section>
+  </main>
+  <div class="widget-toast" id="widget-toast"></div>
+
+  <script src="../shared/workspace-modes.js"></script>
+  <script src="../shared/quick-parser.js"></script>
+  <script src="widget.js"></script>
+</body>
+</html>
