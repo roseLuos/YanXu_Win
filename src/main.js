@@ -2,13 +2,14 @@ const { app, BrowserWindow, ipcMain, dialog, shell, screen } = require('electron
 const fs = require('node:fs');
 const path = require('node:path');
 const { normalizeWorkspaceMode } = require('./shared/workspace-modes');
+const { removeLegacyDemoDeadlines } = require('./shared/data-migrations');
 
 let mainWindow = null;
 let widgetWindow = null;
 let cachedData = null;
 let saveQueue = Promise.resolve();
 let widgetBoundsTimer = null;
-const DATA_VERSION = 9;
+const DATA_VERSION = 10;
 const WIDGET_SIZE = Object.freeze({ width: 760, height: 372 });
 
 function emptyData() {
@@ -97,9 +98,6 @@ function demoData() {
   return {
     ...emptyData(), examplesInitialized: true, tasks, habits, habitLogs, attendanceSessions,
     deadlines: [
-      { id: uid(), title: '论文初稿交给导师', dueDate: isoAt(12), includesTime: false, kind: 'deadline', isIgnored: false, createdAt: now.toISOString() },
-      { id: uid(), title: '数据集申请截止', dueDate: isoAt(18), includesTime: false, kind: 'deadline', isIgnored: false, createdAt: now.toISOString() },
-      { id: uid(), title: '实验室年度汇报', dueDate: isoAt(45), includesTime: false, kind: 'deadline', isIgnored: false, createdAt: now.toISOString() },
       { id: uid(), title: '开始规律运动', dueDate: isoAt(-36), includesTime: false, kind: 'milestone', isIgnored: false, createdAt: now.toISOString() }
     ]
   };
@@ -112,7 +110,7 @@ function dataFile() {
 
 function normalizeData(value) {
   const base = emptyData();
-  const source = value && typeof value === 'object' ? value : {};
+  const source = removeLegacyDemoDeadlines(value && typeof value === 'object' ? value : {}, DATA_VERSION);
   const merged = {
     ...base,
     version: DATA_VERSION,

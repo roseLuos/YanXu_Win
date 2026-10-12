@@ -407,7 +407,7 @@ function deadlineItem(item) {
   const days = daysFromToday(item.dueDate);
   const display = days >= 0 ? `${days}<small>天</small>` : `+${Math.abs(days)}<small>天</small>`;
   return `<div class="deadline-item" data-action="edit-deadline" data-id="${item.id}">
-    <div class="deadline-copy"><b>${escapeHTML(item.title)}</b><small>${formatShortDate(item.dueDate)}</small></div>
+    <div class="deadline-copy"><b>${escapeHTML(item.title)}</b><small>${item.kind === 'milestone' ? '正向里程碑 · 起始于' : 'DDL ·'} ${formatShortDate(item.dueDate)}</small></div>
     <div class="deadline-days">${display}</div>
   </div>`;
 }
@@ -419,7 +419,7 @@ function renderRightRail() {
   const active = data.attendanceSessions.find((item) => !item.leftAt);
   const activeDuration = active ? new Date() - new Date(active.arrivedAt) : 0;
   const activeTooLong = activeDuration > 8 * 60 * 60 * 1000;
-  const personal = activeDeadlines().filter((item) => item.kind === 'deadline').slice(0, 6);
+  const personal = activeDeadlines().slice(0, 6);
   $('#right-rail').innerHTML = `
     <section class="rail-card">
       <div class="rail-title"><span>${iconSVG(mode.icon)}</span>${mode.attendance}</div>
@@ -437,10 +437,10 @@ function renderRightRail() {
       }).join('') : '<div class="empty-block">添加一个每周习惯目标</div>'}</div>
     </section>
     <section class="rail-card">
-      <div class="rail-title"><span>${iconSVG('timer')}</span>最近 DDL <button class="text-button" data-action="manage-deadlines">管理</button></div>
+      <div class="rail-title"><span>${iconSVG('flag')}</span>里程碑 <button class="text-button" data-action="manage-deadlines">管理</button></div>
       <div class="deadline-section">
-        <div class="deadline-subtitle">我的 DDL <span>${personal.length}</span></div>
-        ${personal.length ? personal.map((item) => deadlineItem(item)).join('') : '<div class="empty-block">还没有个人 DDL</div>'}
+        <div class="deadline-subtitle">我的里程碑 <span>${personal.length}</span></div>
+        ${personal.length ? personal.map((item) => deadlineItem(item)).join('') : '<div class="empty-block">还没有里程碑</div>'}
       </div>
     </section>`;
 }
