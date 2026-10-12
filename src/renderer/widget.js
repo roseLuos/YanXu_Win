@@ -113,7 +113,7 @@ function taskTint(task) {
 
 function taskMarkup(task, day) {
   const completed = taskComplete(task, day);
-  return `<button class="widget-task ${completed ? 'completed' : ''}" data-task-id="${task.id}" data-task-date="${dateKey(day)}" data-context-task="${task.id}" style="--task-color:${taskTint(task)}">
+  return `<button class="widget-task ${task.scheduleKind} ${completed ? 'completed' : ''}" data-task-id="${task.id}" data-task-date="${dateKey(day)}" data-context-task="${task.id}" style="--task-color:${taskTint(task)}">
     <i class="task-check">${completed ? iconSVG('check') : ''}</i>
     <span><strong>${escapeHTML(task.title)}</strong>${task.scheduleKind === 'fixed' ? `<small>${formatTime(task.start)}</small>` : ''}</span>
   </button>`;

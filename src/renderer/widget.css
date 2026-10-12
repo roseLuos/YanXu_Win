@@ -101,9 +101,12 @@ button { cursor: pointer; }
   border: 0; border-radius: 6px; background: color-mix(in srgb, var(--task-color) 9%, white); text-align: left;
 }
 .widget-task:hover { background: color-mix(in srgb, var(--task-color) 17%, transparent); }
-.widget-task .task-check { width: 12px; height: 12px; display: grid; place-items: center; margin-top: 1px; border: 1.4px solid color-mix(in srgb, var(--task-color) 78%, #667085); border-radius: 3px; background: rgba(255,255,255,.82); color: white; line-height: 1; }
+.widget-task .task-check { width: 12px; height: 12px; display: grid; place-items: center; margin-top: 1px; border: 1.5px solid #8b96a6; border-radius: 3px; background: transparent; color: white; line-height: 1; }
+.widget-task.fixed .task-check { border-color: var(--accent); }
+.widget-task.range .task-check { border-color: var(--success); }
+.widget-task.day .task-check { border-color: var(--day-task); }
 .widget-task .task-check .widget-icon { width: 9px; height: 9px; stroke-width: 2.7; }
-.widget-task.completed .task-check { border-color: var(--accent); background: var(--accent); }
+.widget-task.completed .task-check { border-color: var(--success); background: var(--success); }
 .widget-task span { min-width: 0; }
 .widget-task strong { display: -webkit-box; overflow: hidden; color: rgba(23,31,46,.92); font-size: 9px; font-weight: 600; line-height: 1.38; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .widget-task small { display: block; margin-top: 2px; color: color-mix(in srgb, var(--task-color) 78%, #445); font-size: 8px; }
